@@ -1,11 +1,9 @@
 name: Daily Dog Blog Generator
 
 on:
-  # Daily at 04:00 UTC = 09:00 Pakistan time
   schedule:
     - cron: "0 4 * * *"
 
-  # Allows manual run from GitHub Actions tab
   workflow_dispatch:
     inputs:
       blogs_per_day:
@@ -36,6 +34,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Fix folder structure
+        run: |
+          mkdir -p scripts data blogs
+
+          if [ ! -f scripts/generate_blogs.py ] && [ -f generate_blogs.py ]; then
+            cp generate_blogs.py scripts/generate_blogs.py
+          fi
+
+          if [ ! -f scripts/build_index.py ] && [ -f build_index.py ]; then
+            cp build_index.py scripts/build_index.py
+          fi
+
+          if [ ! -f data/topics.csv ] && [ -f topics.csv ]; then
+            cp topics.csv data/topics.csv
+          fi
+
+          if [ ! -f data/products.json ] && [ -f products.json ]; then
+            cp products.json data/products.json
+          fi
+
+          if [ ! -f data/generated_blogs.json ] && [ -f generated_blogs.json ]; then
+            cp generated_blogs.json data/generated_blogs.json
+          fi
+
+          if [ ! -f data/generated_blogs.json ]; then
+            echo "[]" > data/generated_blogs.json
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -51,7 +77,7 @@ jobs:
         run: |
           git config user.name "dog-blog-agent"
           git config user.email "dog-blog-agent@users.noreply.github.com"
-          git add data/topics.csv data/generated_blogs.json blogs/ index.html
+          git add scripts/ data/ blogs/ index.html
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
