@@ -17,10 +17,20 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "dog-blog-pages"
+  cancel-in-progress: false
 
 jobs:
   generate-blogs:
     runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -36,7 +46,9 @@ jobs:
 
       - name: Fix folder structure
         run: |
-          mkdir -p scripts data blogs
+          mkdir -p scripts
+          mkdir -p data
+          mkdir -p blogs
 
           if [ ! -f scripts/generate_blogs.py ] && [ -f generate_blogs.py ]; then
             cp generate_blogs.py scripts/generate_blogs.py
@@ -62,6 +74,15 @@ jobs:
             echo "[]" > data/generated_blogs.json
           fi
 
+          echo "Folder check:"
+          ls -la
+          echo "Scripts:"
+          ls -la scripts
+          echo "Data:"
+          ls -la data
+          echo "Blogs:"
+          ls -la blogs
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -84,3 +105,24 @@ jobs:
             git commit -m "Generate daily dog blog drafts"
             git push
           fi
+
+      - name: Prepare Pages site
+        run: |
+          rm -rf _site
+          mkdir -p _site
+          cp index.html _site/index.html
+          cp -r blogs _site/blogs
+          cp -r data _site/data
+          touch _site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
