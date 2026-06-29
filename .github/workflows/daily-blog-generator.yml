@@ -13,7 +13,7 @@ on:
       dry_run:
         description: "Generate fake test blogs without Gemini API? true/false"
         required: false
-        default: "false"
+        default: "true"
 
 permissions:
   contents: write
@@ -26,13 +26,34 @@ jobs:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_MODEL: gemini-3.5-flash
       BLOGS_PER_DAY: ${{ github.event.inputs.blogs_per_day || '20' }}
-      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
       SLEEP_SECONDS_BETWEEN_CALLS: "6"
       MAX_RETRIES: "3"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Fix folder structure
+        run: |
+          mkdir -p scripts
+          mkdir -p data
+          mkdir -p blogs
+
+          cp generate_blogs.py scripts/generate_blogs.py
+          cp build_index.py scripts/build_index.py
+          cp topics.csv data/topics.csv
+          cp products.json data/products.json
+          cp generated_blogs.json data/generated_blogs.json
+
+          echo "Root files:"
+          ls -la
+
+          echo "Scripts folder:"
+          ls -la scripts
+
+          echo "Data folder:"
+          ls -la data
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -49,7 +70,7 @@ jobs:
         run: |
           git config user.name "dog-blog-agent"
           git config user.email "dog-blog-agent@users.noreply.github.com"
-          git add data/topics.csv data/generated_blogs.json blogs/ index.html
+          git add scripts/ data/ blogs/ index.html
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
