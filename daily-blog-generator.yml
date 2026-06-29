@@ -1,0 +1,60 @@
+name: Daily Dog Blog Generator
+
+on:
+  # Daily at 04:00 UTC = 09:00 Pakistan time
+  schedule:
+    - cron: "0 4 * * *"
+
+  # Allows manual run from GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      blogs_per_day:
+        description: "How many blogs to generate this run"
+        required: false
+        default: "20"
+      dry_run:
+        description: "Generate fake test blogs without Gemini API? true/false"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+jobs:
+  generate-blogs:
+    runs-on: ubuntu-latest
+
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_MODEL: gemini-3.5-flash
+      BLOGS_PER_DAY: ${{ github.event.inputs.blogs_per_day || '20' }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+      SLEEP_SECONDS_BETWEEN_CALLS: "6"
+      MAX_RETRIES: "3"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate blog drafts
+        run: python scripts/generate_blogs.py
+
+      - name: Build preview website
+        run: python scripts/build_index.py
+
+      - name: Commit generated files
+        run: |
+          git config user.name "dog-blog-agent"
+          git config user.email "dog-blog-agent@users.noreply.github.com"
+          git add data/topics.csv data/generated_blogs.json blogs/ index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Generate daily dog blog drafts"
+            git push
+          fi
