@@ -38,7 +38,7 @@ jobs:
 
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      GEMINI_MODEL: gemini-3.5-flash
+      GEMINI_MODEL: gemini-2.5-flash-lite
       BLOGS_PER_DAY: ${{ github.event.inputs.blogs_per_day || '20' }}
       DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
       CLEAR_PREVIOUS: ${{ github.event.inputs.clear_previous || 'true' }}
