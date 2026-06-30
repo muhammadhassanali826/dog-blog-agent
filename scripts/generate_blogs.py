@@ -8,7 +8,7 @@ New behavior:
 - Uses Gemini again to write the full blog HTML for each topic.
 - Keeps data/products.json for product recommendations.
 - Stores topic history in data/topic_history.json to reduce duplicate topics.
-- Clears old dashboard drafts when CLEAR_PREVIOUS=true.
+- Clears old dashboard drafts only after at least one new draft is generated successfully when CLEAR_PREVIOUS=true.
 - No Shopify publishing.
 """
 
@@ -21,6 +21,7 @@ import os
 import re
 import sys
 import time
+import shutil
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -38,8 +39,8 @@ BLOGS_PER_DAY = int(os.getenv("BLOGS_PER_DAY", "20"))
 BLOGS_PER_DAY = min(max(BLOGS_PER_DAY, 1), 20)
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-SLEEP_SECONDS = float(os.getenv("SLEEP_SECONDS_BETWEEN_CALLS", "6"))
-MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
+SLEEP_SECONDS = float(os.getenv("SLEEP_SECONDS_BETWEEN_CALLS", "20"))
+MAX_RETRIES = int(os.getenv("MAX_RETRIES", "6"))
 DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"
 CLEAR_PREVIOUS = os.getenv("CLEAR_PREVIOUS", "true").lower() == "true"
 
@@ -628,22 +629,39 @@ def main() -> int:
     if not isinstance(history, list):
         history = []
 
+    existing_generated = load_json(GENERATED_JSON, [])
+    if not isinstance(existing_generated, list):
+        existing_generated = []
+
+    # IMPORTANT:
+    # Do not delete old dashboard drafts before Gemini succeeds.
+    # Gemini can return 503 / high-demand errors, and we do not want those errors
+    # to wipe the currently visible website drafts.
     if CLEAR_PREVIOUS:
-        print("CLEAR_PREVIOUS=true, removing old generated dashboard drafts before saving the new batch.")
-        clear_previous_drafts()
+        print("CLEAR_PREVIOUS=true. Old drafts will be kept until at least one new draft is generated successfully.")
         generated: List[Dict[str, Any]] = []
+        output_dir = ROOT / "_new_blog_batch_tmp"
+        if output_dir.exists():
+            shutil.rmtree(output_dir, ignore_errors=True)
+        output_dir.mkdir(parents=True, exist_ok=True)
     else:
-        generated = load_json(GENERATED_JSON, [])
-        if not isinstance(generated, list):
-            generated = []
+        generated = existing_generated
+        output_dir = BLOGS_DIR
 
     today = dt.date.today().isoformat()
 
     print(f"Creating {BLOGS_PER_DAY} fresh topic(s) with AI. DRY_RUN={DRY_RUN}")
-    if DRY_RUN:
-        topics = fake_topics(BLOGS_PER_DAY, products)
-    else:
-        topics = generate_topics_with_ai(BLOGS_PER_DAY, products, history)
+    try:
+        if DRY_RUN:
+            topics = fake_topics(BLOGS_PER_DAY, products)
+        else:
+            topics = generate_topics_with_ai(BLOGS_PER_DAY, products, history)
+    except Exception as exc:
+        print(f"Topic generation failed: {exc}", file=sys.stderr)
+        print("No old drafts were deleted. Website will keep the previous successful batch.")
+        if CLEAR_PREVIOUS:
+            shutil.rmtree(output_dir, ignore_errors=True)
+        return 0
 
     print("Topics selected for this run:")
     for i, topic in enumerate(topics, 1):
@@ -662,11 +680,11 @@ def main() -> int:
             blog = validate_blog(raw_blog, topic)
             handle = blog["search_engine_listing"]["url_handle"]
             filename = f"{today}-{handle}.html"
-            blog_path = BLOGS_DIR / filename
+            blog_path = output_dir / filename
             suffix = 2
             while blog_path.exists():
                 filename = f"{today}-{handle}-{suffix}.html"
-                blog_path = BLOGS_DIR / filename
+                blog_path = output_dir / filename
                 suffix += 1
 
             blog_path.write_text(render_blog_page(blog, today), encoding="utf-8")
@@ -699,17 +717,31 @@ def main() -> int:
                 }
             )
             generated_count += 1
-            print(f"Saved: blogs/{filename}")
+            print(f"Saved new draft temporarily: {blog_path}")
 
             if not DRY_RUN and index < len(topics):
                 time.sleep(SLEEP_SECONDS)
         except Exception as e:
             print(f"Failed blog '{topic.get('topic')}': {e}", file=sys.stderr)
 
-    save_json(GENERATED_JSON, generated)
-    save_json(TOPIC_HISTORY_JSON, history[-500:])
-    print(f"\nDone. Generated {generated_count} blog(s). Topics are now AI-generated directly, no topics.csv needed.")
-    return 0 if generated_count > 0 else 1
+    if generated_count > 0:
+        if CLEAR_PREVIOUS:
+            print("New batch generated successfully. Now clearing old dashboard drafts and publishing the new batch.")
+            clear_previous_drafts()
+            for path in sorted(output_dir.glob("*.html")):
+                target = BLOGS_DIR / path.name
+                shutil.move(str(path), str(target))
+                print(f"Published new draft: {target}")
+            shutil.rmtree(output_dir, ignore_errors=True)
+        save_json(GENERATED_JSON, generated)
+        save_json(TOPIC_HISTORY_JSON, history[-500:])
+        print(f"\nDone. Generated {generated_count} blog(s). Topics are now AI-generated directly, no topics.csv needed.")
+        return 0
+
+    print("\nNo new blogs were generated. Old dashboard drafts were kept unchanged.")
+    if CLEAR_PREVIOUS:
+        shutil.rmtree(output_dir, ignore_errors=True)
+    return 0
 
 
 if __name__ == "__main__":
