@@ -9,13 +9,13 @@ on:
       blogs_per_day:
         description: "How many blogs to generate this run"
         required: false
-        default: "20"
+        default: "1"
       dry_run:
         description: "Generate fake test blogs without Gemini API? true/false"
         required: false
         default: "false"
       clear_previous:
-        description: "Clear old generated drafts before saving the new batch? true/false"
+        description: "Clear old generated drafts after a new batch succeeds? true/false"
         required: false
         default: "true"
 
@@ -39,11 +39,11 @@ jobs:
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_MODEL: gemini-2.5-flash-lite
-      BLOGS_PER_DAY: ${{ github.event.inputs.blogs_per_day || '20' }}
+      BLOGS_PER_DAY: ${{ github.event.inputs.blogs_per_day || '1' }}
       DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
       CLEAR_PREVIOUS: ${{ github.event.inputs.clear_previous || 'true' }}
-      SLEEP_SECONDS_BETWEEN_CALLS: "6"
-      MAX_RETRIES: "3"
+      SLEEP_SECONDS_BETWEEN_CALLS: "20"
+      MAX_RETRIES: "6"
       TRIGGER_WORKER_URL: ${{ vars.TRIGGER_WORKER_URL }}
 
     steps:
@@ -66,10 +66,6 @@ jobs:
             cp build_index.py scripts/build_index.py
           fi
 
-          if [ ! -f data/topics.csv ] && [ -f topics.csv ]; then
-            cp topics.csv data/topics.csv
-          fi
-
           if [ ! -f data/products.json ] && [ -f products.json ]; then
             cp products.json data/products.json
           fi
@@ -80,6 +76,10 @@ jobs:
 
           if [ ! -f data/generated_blogs.json ]; then
             echo "[]" > data/generated_blogs.json
+          fi
+
+          if [ ! -f data/topic_history.json ]; then
+            echo "[]" > data/topic_history.json
           fi
 
           echo "Folder check:"
