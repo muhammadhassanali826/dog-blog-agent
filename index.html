@@ -94,7 +94,7 @@
   <main>
     <section class="generator-panel" id="generate">
       <h2>Generate New Blogs</h2>
-      <p>Choose how many new drafts to generate. Each new run clears the old dashboard drafts first, so the page only shows the latest batch.</p>
+      <p>Choose how many new AI drafts to generate. Each new run clears the old dashboard drafts first, so the page only shows the latest batch.</p>
       <form id="generateForm" class="generator-grid">
         <div>
           <label for="blogCount">How many blogs?</label>
@@ -103,8 +103,7 @@
         <div>
           <label for="aiMode">Generation mode</label>
           <select id="aiMode" name="dry_run">
-            <option value="false">Use AI / Gemini</option>
-            <option value="true">Test only / no AI</option>
+            <option value="false">USE AI</option>
           </select>
         </div>
         <div>
@@ -115,7 +114,6 @@
           <button class="button" type="submit">Generate Blog Drafts</button>
         </div>
       </form>
-      <div class="hint" id="triggerStatus"></div>
     </section>
 
     
@@ -123,19 +121,19 @@
               <h2 class="date-heading">2026-06-30 <span>1 draft(s)</span></h2>
               <div class="cards">
       <article class="blog-card">
-        <div class="card-topline">dog treats · 2026-06-30</div>
-        <h2>Best Dog Treats for Picky Eaters: High-Value Rewards They Can&#x27;t Resist</h2>
-        <p class="excerpt">Struggling to find rewards your discerning pup actually enjoys? Discover the best dog treats for picky eaters, featuring natural, single-ingredient options like Beef Lung Bites.</p>
+        <div class="card-topline">dog nutrition · 2026-06-30</div>
+        <h2>Can Dogs Eat Pumpkin? Benefits, Serving Tips, and Best Treats</h2>
+        <p class="excerpt">Discover the incredible benefits of pumpkin for dogs, how to safely serve it, and why this nutrient-packed superfood is a must-have in your dog&#x27;s diet.</p>
         <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Best Dog Treats for Picky Eaters | Brutus &amp; Barnaby</span></div>
-          <div><strong>Meta Description</strong><span>Struggling to find rewards your dog loves? Explore our guide to the best dog treats for picky eaters, featuring single-ingredient Beef Lung Bites.</span></div>
-          <div><strong>URL Handle</strong><span>best-dog-treats-for-picky-eaters</span></div>
-          <div><strong>Product Focus</strong><span>Beef Lung Bites</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>dog treats for picky eaters, best dog treats for picky dogs, high value dog treats, single ingredient dog treats, beef lung bites for dogs, natural dog treats, healthy dog treats, dog treats for training picky dogs, what treats do picky dogs like</span></div>
+          <div><strong>Page Title</strong><span>Can Dogs Eat Pumpkin? Safety &amp; Benefits Explained</span></div>
+          <div><strong>Meta Description</strong><span>Wondering if dogs can eat pumpkin? Learn the health benefits, safe serving sizes, and the best pumpkin dog treats for a happy, healthy pup.</span></div>
+          <div><strong>URL Handle</strong><span>can-dogs-eat-pumpkin</span></div>
+          <div><strong>Product Focus</strong><span>Sweet Potato Sticks Pumpkin &amp; Cinnamon</span></div>
+          <div class="full"><strong>SEO Keywords</strong><span>can dogs eat pumpkin, is pumpkin good for dogs, canned pumpkin for dogs, pumpkin dog treats, benefits of pumpkin for dogs, natural dog treats, healthy dog snacks, can dogs have pumpkin seeds, pumpkin and sweet potato for dogs, best pumpkin treats for dogs</span></div>
         </div>
         <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-dog-treats-for-picky-eaters.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Best Dog Treats for Picky Eaters: High-Value Rewards They Can't Resist", "excerpt": "Struggling to find rewards your discerning pup actually enjoys? Discover the best dog treats for picky eaters, featuring natural, single-ingredient options like Beef Lung Bites.", "page_title": "Best Dog Treats for Picky Eaters | Brutus & Barnaby", "meta_description": "Struggling to find rewards your dog loves? Explore our guide to the best dog treats for picky eaters, featuring single-ingredient Beef Lung Bites.", "url_handle": "best-dog-treats-for-picky-eaters", "seo_keywords": "dog treats for picky eaters, best dog treats for picky dogs, high value dog treats, single ingredient dog treats, beef lung bites for dogs, natural dog treats, healthy dog treats, dog treats for training picky dogs, what treats do picky dogs like", "html_file": "blogs/2026-06-30-best-dog-treats-for-picky-eaters.html"})'>Copy SEO</button>
+          <a class="button" href="blogs/2026-06-30-can-dogs-eat-pumpkin.html" target="_blank" rel="noopener">Open Draft</a>
+          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Can Dogs Eat Pumpkin? Benefits, Serving Tips, and Best Treats", "excerpt": "Discover the incredible benefits of pumpkin for dogs, how to safely serve it, and why this nutrient-packed superfood is a must-have in your dog's diet.", "page_title": "Can Dogs Eat Pumpkin? Safety & Benefits Explained", "meta_description": "Wondering if dogs can eat pumpkin? Learn the health benefits, safe serving sizes, and the best pumpkin dog treats for a happy, healthy pup.", "url_handle": "can-dogs-eat-pumpkin", "seo_keywords": "can dogs eat pumpkin, is pumpkin good for dogs, canned pumpkin for dogs, pumpkin dog treats, benefits of pumpkin for dogs, natural dog treats, healthy dog snacks, can dogs have pumpkin seeds, pumpkin and sweet potato for dogs, best pumpkin treats for dogs", "html_file": "blogs/2026-06-30-can-dogs-eat-pumpkin.html"})'>Copy SEO</button>
         </div>
       </article>
     </div>
@@ -162,28 +160,25 @@
     const ACTIONS_URL = "https://github.com/muhammadhassanali826/dog-blog-agent/actions/workflows/daily-blog-generator.yml";
 
     const form = document.getElementById('generateForm');
-    const triggerStatus = document.getElementById('triggerStatus');
 
     form.addEventListener('submit', async function(event) {
       event.preventDefault();
       const blogsPerDay = document.getElementById('blogCount').value || '20';
-      const dryRun = document.getElementById('aiMode').value;
+      const dryRun = 'false';
       const pin = document.getElementById('agentPin').value || '';
-
-      function showStatus(message) {
-        triggerStatus.style.display = 'block';
-        triggerStatus.innerHTML = message;
-      }
+      const submitButton = form.querySelector('button[type="submit"]');
+      const originalText = submitButton ? submitButton.textContent : '';
 
       if (!WORKER_CONNECTED || !WORKER_URL) {
-        showStatus('Direct website trigger is not connected yet. Opening GitHub Actions. Choose <strong>blogs_per_day=' + blogsPerDay + '</strong>, <strong>dry_run=' + dryRun + '</strong>, and <strong>clear_previous=true</strong> there.');
         window.open(ACTIONS_URL, '_blank', 'noopener');
         return;
       }
 
-      triggerStatus.style.display = 'block';
-      triggerStatus.textContent = 'Starting workflow and clearing old drafts first...';
       try {
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = 'Starting...';
+        }
         const res = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-agent-pin': pin },
@@ -191,10 +186,19 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || 'Trigger failed');
-        triggerStatus.innerHTML = 'Workflow started. Old drafts will be cleared before the new batch is saved. Wait 5–10 minutes, then refresh this page. <a href="' + ACTIONS_URL + '" target="_blank" rel="noopener">Open GitHub Actions</a>'; 
+        if (submitButton) submitButton.textContent = 'Started';
+        setTimeout(() => {
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalText || 'Generate Blog Drafts';
+          }
+        }, 2500);
       } catch (error) {
-        triggerStatus.style.display = 'block';
-        triggerStatus.textContent = 'Could not trigger workflow: ' + error.message;
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalText || 'Generate Blog Drafts';
+        }
+        alert('Could not trigger workflow: ' + error.message);
       }
     });
 
