@@ -80,10 +80,10 @@
     <h1>Generated Blog Drafts</h1>
     <p>Generate draft blogs from this dashboard, review SEO details, open each draft, and copy the full blog HTML. GitHub-only. No Shopify auto-publishing.</p>
     <div class="stats">
-      <div class="stat">Total Drafts: 1</div>
+      <div class="stat">Total Drafts: 2</div>
       <div class="stat">GitHub Only</div>
       <div class="stat">No Shopify Publishing</div>
-      <div class="stat">Website Trigger: Manual/Not Connected</div>
+      <div class="stat">Website Trigger: Connected</div>
     </div>
     <div class="hero-actions">
       <a class="button" href="#generate">Generate Blogs</a>
@@ -119,8 +119,27 @@
 
     
             <section class="date-section" id="drafts">
-              <h2 class="date-heading">2026-06-30 <span>1 draft(s)</span></h2>
+              <h2 class="date-heading">2026-06-30 <span>2 draft(s)</span></h2>
               <div class="cards">
+      <article class="blog-card">
+        <div class="card-topline">puppy chews · 2026-06-30</div>
+        <h2>Are Bully Sticks Safe for Puppies? A Complete Guide for Pet Parents</h2>
+        <p class="excerpt">Curious if bully sticks are safe for your growing puppy? Learn when to introduce them, the health benefits, and crucial safety tips to keep your pup happy and safe.</p>
+        <div class="meta-grid">
+          <div><strong>Page Title</strong><span>Are Bully Sticks Safe for Puppies? Safety &amp; Benefits Guide</span></div>
+          <div><strong>Meta Description</strong><span>Are bully sticks safe for puppies? Discover when puppies can start chewing bully sticks, safety tips, and the best natural puppy chews for teething.</span></div>
+          <div><strong>URL Handle</strong><span>are-bully-sticks-safe-for-puppies</span></div>
+          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
+          <div class="full"><strong>SEO Keywords</strong><span>bully sticks for puppies, are bully sticks safe for puppies, puppy chews, safe puppy treats, teething toys for puppies, natural dog treats, digestible puppy chews, healthy puppy snacks, best chews for puppies, Brutus and Barnaby bully sticks</span></div>
+        </div>
+        <div class="actions">
+          <a class="button" href="blogs/2026-06-30-are-bully-sticks-safe-for-puppies-3.html" target="_blank" rel="noopener">Open Draft</a>
+          <button class="button secondary" type="button" onclick="openHtmlModal("blogs/2026-06-30-are-bully-sticks-safe-for-puppies-3.html", "Are Bully Sticks Safe for Puppies? A Complete Guide for Pet Parents")">View HTML</button>
+          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Are Bully Sticks Safe for Puppies? A Complete Guide for Pet Parents", "excerpt": "Curious if bully sticks are safe for your growing puppy? Learn when to introduce them, the health benefits, and crucial safety tips to keep your pup happy and safe.", "page_title": "Are Bully Sticks Safe for Puppies? Safety & Benefits Guide", "meta_description": "Are bully sticks safe for puppies? Discover when puppies can start chewing bully sticks, safety tips, and the best natural puppy chews for teething.", "url_handle": "are-bully-sticks-safe-for-puppies", "seo_keywords": "bully sticks for puppies, are bully sticks safe for puppies, puppy chews, safe puppy treats, teething toys for puppies, natural dog treats, digestible puppy chews, healthy puppy snacks, best chews for puppies, Brutus and Barnaby bully sticks", "html_file": "blogs/2026-06-30-are-bully-sticks-safe-for-puppies-3.html"})'>Copy SEO</button>
+        </div>
+      </article>
+    
+
       <article class="blog-card">
         <div class="card-topline">dog behavior · 2026-06-30</div>
         <h2>Why Is My Dog Always Hungry?</h2>
@@ -157,8 +176,8 @@
   </div>
 
   <script>
-    const WORKER_URL = "";
-    const WORKER_CONNECTED = false;
+    const WORKER_URL = "https://dog-blog-trigger.mhassanali826.workers.dev/";
+    const WORKER_CONNECTED = true;
     const ACTIONS_URL = "https://github.com/muhammadhassanali826/dog-blog-agent/actions/workflows/daily-blog-generator.yml";
 
     const form = document.getElementById('generateForm');
