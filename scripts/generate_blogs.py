@@ -390,6 +390,7 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
     keywords = ", ".join(blog.get("seo_keywords", []))
     keywords_escaped = html.escape(keywords)
     body = blog.get("html", "")
+    raw_body = html.escape(body)
 
     return f"""<!doctype html>
 <html lang=\"en\">
@@ -406,6 +407,10 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
     .agent-meta {{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:12px; }}
     .agent-meta div {{ background:#fff8f3; border:1px solid #f3d2c2; border-radius:10px; padding:12px; font-size:13px; line-height:1.55; }}
     .agent-copy {{ border:0; background:#f02400; color:#fff; font-weight:800; border-radius:999px; padding:10px 16px; cursor:pointer; }}
+    .agent-html-panel {{ margin-top:14px; background:#111; border-radius:12px; overflow:hidden; border:1px solid #2c2c2c; }}
+    .agent-html-head {{ display:flex; justify-content:space-between; gap:10px; align-items:center; padding:12px 14px; color:#fff; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; border-bottom:1px solid #333; }}
+    .agent-html-head strong {{ color:#fff; }}
+    #rawHtmlCode {{ width:100%; min-height:280px; border:0; outline:none; resize:vertical; padding:16px; background:#111; color:#fff; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; font-size:13px; line-height:1.5; }}
     @media (max-width: 640px) {{
       .agent-preview-bar {{ padding:14px; }}
       div[style*=\"padding:48px 44px\"] {{ padding:34px 22px !important; }}
@@ -434,9 +439,23 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
       <div><strong>URL Handle</strong><br>{handle}</div>
       <div><strong>SEO Keywords</strong><br>{keywords_escaped}</div>
     </div>
+    <div class="agent-html-panel">
+      <div class="agent-html-head">
+        <strong>Full Blog HTML</strong>
+        <button class="agent-copy" type="button" onclick="copyRawHtml()">Copy HTML</button>
+      </div>
+      <textarea id="rawHtmlCode" spellcheck="false">{raw_body}</textarea>
+    </div>
   </div>
 
 {body}
+<script>
+  async function copyRawHtml() {{
+    const el = document.getElementById('rawHtmlCode');
+    await navigator.clipboard.writeText(el.value);
+    alert('Blog HTML copied.');
+  }}
+</script>
 </body>
 </html>
 """

@@ -27,502 +27,100 @@
       color: #fff;
       padding: 54px 6vw 46px;
     }
-    .eyebrow {
-      color: var(--orange);
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    h1 {
-      font-size: clamp(32px, 5vw, 58px);
-      line-height: 1;
-      margin: 0 0 14px;
-      letter-spacing: -1.8px;
-    }
-    .hero p {
-      max-width: 760px;
-      color: rgba(255,255,255,.8);
-      font-size: 16px;
-      line-height: 1.7;
-      margin: 0;
-    }
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 24px;
-    }
-    .stat {
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
-      border-radius: 999px;
-      padding: 8px 13px;
-      font-size: 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+    .eyebrow { color: var(--orange); font-size: 11px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
+    h1 { font-size: clamp(32px, 5vw, 58px); line-height: 1; margin: 0 0 14px; letter-spacing: -1.8px; }
+    .hero p { max-width: 800px; color: rgba(255,255,255,.8); font-size: 16px; line-height: 1.7; margin: 0; }
+    .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .stat { border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.08); border-radius: 999px; padding: 8px 13px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    .hero-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:24px; }
     main { padding: 32px 6vw 70px; }
-    .date-heading {
-      margin: 30px 0 16px;
-      font-size: 22px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .generator-panel {
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:22px;
+      box-shadow:0 18px 50px rgba(0,0,0,.06);
+      margin-bottom:28px;
     }
-    .date-heading span {
-      color: var(--orange);
-      font-size: 12px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 18px;
-    }
-    .blog-card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 22px;
-      box-shadow: 0 18px 40px rgba(0,0,0,.05);
-    }
-    .card-topline {
-      color: var(--orange);
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    .blog-card h2 {
-      font-size: 21px;
-      line-height: 1.2;
-      margin: 0 0 10px;
-    }
-    .excerpt {
-      color: #3a2a1a;
-      line-height: 1.65;
-      font-size: 14px;
-      margin: 0 0 16px;
-    }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 9px;
-      margin: 15px 0 18px;
-    }
-    .meta-grid div {
-      background: var(--soft);
-      border: 1px solid #ffd7c4;
-      border-radius: 10px;
-      padding: 10px;
-    }
-    .meta-grid strong {
-      display: block;
-      color: var(--text);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-    }
-    .meta-grid span {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-      overflow-wrap: anywhere;
-    }
+    .generator-panel h2 { margin:0 0 8px; font-size:24px; }
+    .generator-panel p { margin:0 0 18px; color:var(--muted); line-height:1.6; }
+    .generator-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap:14px; align-items:end; }
+    label { font-size:12px; font-weight:900; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:7px; }
+    input, select { width:100%; border:1px solid #ffd7c4; background:#fff8f3; border-radius:12px; padding:13px 12px; font:inherit; }
+    .hint { margin-top:12px; padding:12px 14px; border-radius:12px; background:#fff4ee; border:1px solid #ffd7c4; color:#5c3628; font-size:14px; line-height:1.55; }
+    .date-heading { margin: 30px 0 16px; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+    .date-heading span { color: var(--orange); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+    .blog-card { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 22px; box-shadow: 0 18px 40px rgba(0,0,0,.05); }
+    .card-topline { color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+    .blog-card h2 { font-size: 21px; line-height: 1.2; margin: 0 0 10px; }
+    .excerpt { color: #3a2a1a; line-height: 1.65; font-size: 14px; margin: 0 0 16px; }
+    .meta-grid { display: grid; grid-template-columns: 1fr; gap: 9px; margin: 15px 0 18px; }
+    .meta-grid div { background: var(--soft); border: 1px solid #ffd7c4; border-radius: 10px; padding: 10px; }
+    .meta-grid strong { display: block; color: var(--text); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .meta-grid span { color: var(--muted); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .button {
-      display: inline-block;
-      border: 0;
-      background: var(--orange);
-      color: #fff;
-      font-weight: 900;
-      font-size: 13px;
-      text-decoration: none;
-      border-radius: 999px;
-      padding: 11px 16px;
-      cursor: pointer;
-    }
-    .button.secondary {
-      background: #1a1208;
-    }
-    .empty {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 28px;
-    }
-    @media (max-width: 640px) {
-      .hero { padding: 42px 22px 36px; }
-      main { padding: 24px 18px 50px; }
-      .cards { grid-template-columns: 1fr; }
-    }
+    .button { display: inline-block; border: 0; background: var(--orange); color: #fff; font-weight: 900; font-size: 13px; text-decoration: none; border-radius: 999px; padding: 12px 17px; cursor: pointer; text-align:center; }
+    .button.secondary { background: #1a1208; }
+    .button.ghost { background:#fff; color:#1a1208; border:1px solid #d8c6b8; }
+    .empty { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 28px; }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.74); display:none; z-index:9999; padding:24px; }
+    .modal-backdrop.active { display:block; }
+    .modal { background:#fffaf6; border:1px solid #ffd7c4; border-radius:20px; max-width:1100px; height:calc(100vh - 48px); margin:0 auto; display:flex; flex-direction:column; overflow:hidden; }
+    .modal-head { padding:16px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center; border-bottom:1px solid #f3d2c2; }
+    .modal-head h3 { margin:0; font-size:18px; }
+    .modal-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    #htmlCode { width:100%; flex:1; border:0; padding:18px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:13px; line-height:1.5; background:#111; color:#fff; resize:none; outline:none; }
+    @media (max-width: 640px) { .hero { padding: 42px 22px 36px; } main { padding: 24px 18px 50px; } .cards { grid-template-columns: 1fr; } .modal-backdrop { padding:8px; } .modal { height:calc(100vh - 16px); } }
   </style>
 </head>
 <body>
   <header class="hero">
     <div class="eyebrow">Brutus &amp; Barnaby Blog AI Agent</div>
     <h1>Generated Blog Drafts</h1>
-    <p>This free GitHub preview site lists AI-generated draft blogs only. Review every blog before publishing it anywhere.</p>
+    <p>Generate draft blogs from this dashboard, review SEO details, open each draft, and copy the full blog HTML. GitHub-only. No Shopify auto-publishing.</p>
     <div class="stats">
-      <div class="stat">Total Drafts: 20</div>
+      <div class="stat">Total Drafts: 1</div>
       <div class="stat">GitHub Only</div>
       <div class="stat">No Shopify Publishing</div>
+      <div class="stat">Website Trigger: Manual/Not Connected</div>
+    </div>
+    <div class="hero-actions">
+      <a class="button" href="#generate">Generate Blogs</a>
+      <a class="button secondary" href="#drafts">View Drafts</a>
     </div>
   </header>
   <main>
+    <section class="generator-panel" id="generate">
+      <h2>Generate New Blogs</h2>
+      <p>Choose how many drafts to generate and whether to use AI. “Test only” creates sample blogs without Gemini credits. “Use AI” uses your Gemini key stored in GitHub Secrets.</p>
+      <form id="generateForm" class="generator-grid">
+        <div>
+          <label for="blogCount">How many blogs?</label>
+          <input id="blogCount" name="blogs_per_day" type="number" min="1" max="20" value="20">
+        </div>
+        <div>
+          <label for="aiMode">Generation mode</label>
+          <select id="aiMode" name="dry_run">
+            <option value="false">Use AI / Gemini</option>
+            <option value="true">Test only / no AI</option>
+          </select>
+        </div>
+        <div>
+          <label for="agentPin">PIN, optional</label>
+          <input id="agentPin" name="pin" type="password" placeholder="Only if Worker PIN is set">
+        </div>
+        <div>
+          <button class="button" type="submit">Generate Blog Drafts</button>
+        </div>
+      </form>
+      <div class="hint" id="triggerStatus">If the button is not connected yet, it will open GitHub Actions where you can click Run workflow manually.</div>
+    </section>
+
     
-            <section class="date-section">
-              <h2 class="date-heading">2026-06-30 <span>20 draft(s)</span></h2>
+            <section class="date-section" id="drafts">
+              <h2 class="date-heading">2026-06-30 <span>1 draft(s)</span></h2>
               <div class="cards">
-      <article class="blog-card">
-        <div class="card-topline">dog treats · 2026-06-30</div>
-        <h2>Can Dogs Eat Chicken Jerky?</h2>
-        <p class="excerpt">A helpful dog guide about can dogs eat chicken jerky?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Can Dogs Eat Chicken Jerky?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about can dogs eat chicken jerky? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>can-dogs-eat-chicken-jerky</span></div>
-          <div><strong>Product Focus</strong><span>Chicken Jerky</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>can dogs eat chicken jerky, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-can-dogs-eat-chicken-jerky.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-can-dogs-eat-chicken-jerky.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog chews · 2026-06-30</div>
-        <h2>Best Chews for Power Chewers</h2>
-        <p class="excerpt">A helpful dog guide about best chews for power chewers.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Best Chews for Power Chewers</span></div>
-          <div><strong>Meta Description</strong><span>Learn about best chews for power chewers and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>best-chews-for-power-chewers</span></div>
-          <div><strong>Product Focus</strong><span>Beef Cheek Rolls</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>best chews for power chewers, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-chews-for-power-chewers.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-best-chews-for-power-chewers.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog nutrition · 2026-06-30</div>
-        <h2>How Many Treats Can a Dog Have Per Day?</h2>
-        <p class="excerpt">A helpful dog guide about how many treats can a dog have per day?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>How Many Treats Can a Dog Have Per Day?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about how many treats can a dog have per day? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>how-many-treats-can-a-dog-have-per-day</span></div>
-          <div><strong>Product Focus</strong><span>Training Treats</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>how many treats can a dog have, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-how-many-treats-can-a-dog-have-per-day.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-how-many-treats-can-a-dog-have-per-day.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog treats · 2026-06-30</div>
-        <h2>Are Sweet Potato Dog Treats Healthy?</h2>
-        <p class="excerpt">A helpful dog guide about are sweet potato dog treats healthy?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Are Sweet Potato Dog Treats Healthy?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about are sweet potato dog treats healthy? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>are-sweet-potato-dog-treats-healthy</span></div>
-          <div><strong>Product Focus</strong><span>Sweet Potato Fries</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>sweet potato dog treats, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-are-sweet-potato-dog-treats-healthy.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-are-sweet-potato-dog-treats-healthy.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog chews · 2026-06-30</div>
-        <h2>Best Long Lasting Dog Chews</h2>
-        <p class="excerpt">A helpful dog guide about best long lasting dog chews.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Best Long Lasting Dog Chews</span></div>
-          <div><strong>Meta Description</strong><span>Learn about best long lasting dog chews and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>best-long-lasting-dog-chews</span></div>
-          <div><strong>Product Focus</strong><span>Beef Cheek Rolls</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>long lasting dog chews, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-long-lasting-dog-chews.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-best-long-lasting-dog-chews.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">enrichment · 2026-06-30</div>
-        <h2>How to Keep Dogs Busy Indoors</h2>
-        <p class="excerpt">A helpful dog guide about how to keep dogs busy indoors.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>How to Keep Dogs Busy Indoors</span></div>
-          <div><strong>Meta Description</strong><span>Learn about how to keep dogs busy indoors and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>how-to-keep-dogs-busy-indoors</span></div>
-          <div><strong>Product Focus</strong><span>Beef Cheek Rolls</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>keep dogs busy indoors, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-how-to-keep-dogs-busy-indoors.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-how-to-keep-dogs-busy-indoors.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dental chews · 2026-06-30</div>
-        <h2>Best Dental Chews for Senior Dogs</h2>
-        <p class="excerpt">A helpful dog guide about best dental chews for senior dogs.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Best Dental Chews for Senior Dogs</span></div>
-          <div><strong>Meta Description</strong><span>Learn about best dental chews for senior dogs and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>best-dental-chews-for-senior-dogs</span></div>
-          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>dental chews for senior dogs, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-dental-chews-for-senior-dogs.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-best-dental-chews-for-senior-dogs.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog nutrition · 2026-06-30</div>
-        <h2>Can Dogs Eat Pumpkin?</h2>
-        <p class="excerpt">A helpful dog guide about can dogs eat pumpkin?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Can Dogs Eat Pumpkin?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about can dogs eat pumpkin? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>can-dogs-eat-pumpkin</span></div>
-          <div><strong>Product Focus</strong><span>Sweet Potato Sticks Pumpkin &amp; Cinnamon</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>can dogs eat pumpkin, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-can-dogs-eat-pumpkin.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-can-dogs-eat-pumpkin.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog treats · 2026-06-30</div>
-        <h2>Best Dog Treats for Picky Eaters</h2>
-        <p class="excerpt">A helpful dog guide about best dog treats for picky eaters.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Best Dog Treats for Picky Eaters</span></div>
-          <div><strong>Meta Description</strong><span>Learn about best dog treats for picky eaters and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>best-dog-treats-for-picky-eaters</span></div>
-          <div><strong>Product Focus</strong><span>Beef Lung Bites</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>dog treats for picky eaters, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-dog-treats-for-picky-eaters.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-best-dog-treats-for-picky-eaters.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog behavior · 2026-06-30</div>
-        <h2>Why Do Dogs Chew Everything?</h2>
-        <p class="excerpt">A helpful dog guide about why do dogs chew everything?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Why Do Dogs Chew Everything?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about why do dogs chew everything? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>why-do-dogs-chew-everything</span></div>
-          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>why do dogs chew, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-why-do-dogs-chew-everything.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-why-do-dogs-chew-everything.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">puppy training · 2026-06-30</div>
-        <h2>Best Treats for Training Puppies</h2>
-        <p class="excerpt">A helpful dog guide about best treats for training puppies.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Best Treats for Training Puppies</span></div>
-          <div><strong>Meta Description</strong><span>Learn about best treats for training puppies and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>best-treats-for-training-puppies</span></div>
-          <div><strong>Product Focus</strong><span>Training Treats</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>puppy training treats, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-treats-for-training-puppies.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-best-treats-for-training-puppies.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog chew safety · 2026-06-30</div>
-        <h2>How Long Should a Dog Chew a Bully Stick?</h2>
-        <p class="excerpt">A helpful dog guide about how long should a dog chew a bully stick?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>How Long Should a Dog Chew a Bully Stick?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about how long should a dog chew a bully stick? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>how-long-should-a-dog-chew-a-bully-stick</span></div>
-          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>how long should dog chew bully stick, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-how-long-should-a-dog-chew-a-bully-stick.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-how-long-should-a-dog-chew-a-bully-stick.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog chews · 2026-06-30</div>
-        <h2>Best Rawhide Alternatives for Dogs</h2>
-        <p class="excerpt">A helpful dog guide about best rawhide alternatives for dogs.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Best Rawhide Alternatives for Dogs</span></div>
-          <div><strong>Meta Description</strong><span>Learn about best rawhide alternatives for dogs and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>best-rawhide-alternatives-for-dogs</span></div>
-          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>rawhide alternatives for dogs, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-rawhide-alternatives-for-dogs.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-best-rawhide-alternatives-for-dogs.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog chews · 2026-06-30</div>
-        <h2>Are Pig Ears Safe for Dogs?</h2>
-        <p class="excerpt">A helpful dog guide about are pig ears safe for dogs?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Are Pig Ears Safe for Dogs?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about are pig ears safe for dogs? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>are-pig-ears-safe-for-dogs</span></div>
-          <div><strong>Product Focus</strong><span>Pig Ears</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>are pig ears safe for dogs, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-are-pig-ears-safe-for-dogs.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-are-pig-ears-safe-for-dogs.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">chew comparison · 2026-06-30</div>
-        <h2>Cow Ears vs Pig Ears for Dogs</h2>
-        <p class="excerpt">A helpful dog guide about cow ears vs pig ears for dogs.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Cow Ears vs Pig Ears for Dogs</span></div>
-          <div><strong>Meta Description</strong><span>Learn about cow ears vs pig ears for dogs and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>cow-ears-vs-pig-ears-for-dogs</span></div>
-          <div><strong>Product Focus</strong><span>Cow Ears</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>cow ears vs pig ears, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-cow-ears-vs-pig-ears-for-dogs.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-cow-ears-vs-pig-ears-for-dogs.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog behavior · 2026-06-30</div>
-        <h2>How to Stop Dogs Begging for Food</h2>
-        <p class="excerpt">A helpful dog guide about how to stop dogs begging for food.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>How to Stop Dogs Begging for Food</span></div>
-          <div><strong>Meta Description</strong><span>Learn about how to stop dogs begging for food and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>how-to-stop-dogs-begging-for-food</span></div>
-          <div><strong>Product Focus</strong><span>Training Treats</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>dog begging for food, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-how-to-stop-dogs-begging-for-food.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-how-to-stop-dogs-begging-for-food.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog nutrition · 2026-06-30</div>
-        <h2>Can Dogs Eat Sweet Potatoes?</h2>
-        <p class="excerpt">A helpful dog guide about can dogs eat sweet potatoes?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Can Dogs Eat Sweet Potatoes?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about can dogs eat sweet potatoes? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>can-dogs-eat-sweet-potatoes</span></div>
-          <div><strong>Product Focus</strong><span>Sweet Potato Treats</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>can dogs eat sweet potatoes, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-can-dogs-eat-sweet-potatoes.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-can-dogs-eat-sweet-potatoes.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">enrichment · 2026-06-30</div>
-        <h2>Best Dog Chews for Bored Dogs</h2>
-        <p class="excerpt">A helpful dog guide about best dog chews for bored dogs.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Best Dog Chews for Bored Dogs</span></div>
-          <div><strong>Meta Description</strong><span>Learn about best dog chews for bored dogs and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>best-dog-chews-for-bored-dogs</span></div>
-          <div><strong>Product Focus</strong><span>Cow Ears</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>dog chews for boredom, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-dog-chews-for-bored-dogs.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-best-dog-chews-for-bored-dogs.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">puppy chews · 2026-06-30</div>
-        <h2>Are Bully Sticks Safe for Puppies?</h2>
-        <p class="excerpt">A helpful dog guide about are bully sticks safe for puppies?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Are Bully Sticks Safe for Puppies?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about are bully sticks safe for puppies? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>are-bully-sticks-safe-for-puppies</span></div>
-          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>bully sticks for puppies, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-are-bully-sticks-safe-for-puppies.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-are-bully-sticks-safe-for-puppies.html')">Copy File Path</button>
-        </div>
-      </article>
-    
-
       <article class="blog-card">
         <div class="card-topline">dog behavior · 2026-06-30</div>
         <h2>Why Is My Dog Always Hungry?</h2>
@@ -535,19 +133,119 @@
           <div class="full"><strong>SEO Keywords</strong><span>dog always hungry, dog treats, natural dog chews</span></div>
         </div>
         <div class="actions">
-          <a class="button" href="blogs/2026-06-30-why-is-my-dog-always-hungry.html">Open Blog Draft</a>
-          <button class="button secondary" onclick="copyText('blogs/2026-06-30-why-is-my-dog-always-hungry.html')">Copy File Path</button>
+          <a class="button" href="blogs/2026-06-30-why-is-my-dog-always-hungry-2.html" target="_blank" rel="noopener">Open Draft</a>
+          <button class="button secondary" type="button" onclick="openHtmlModal("blogs/2026-06-30-why-is-my-dog-always-hungry-2.html", "Why Is My Dog Always Hungry?")">View HTML</button>
+          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Why Is My Dog Always Hungry?", "excerpt": "A helpful dog guide about why is my dog always hungry?.", "page_title": "Why Is My Dog Always Hungry?", "meta_description": "Learn about why is my dog always hungry? and how to build a smarter dog treat routine.", "url_handle": "why-is-my-dog-always-hungry", "seo_keywords": "dog always hungry, dog treats, natural dog chews", "html_file": "blogs/2026-06-30-why-is-my-dog-always-hungry-2.html"})'>Copy SEO</button>
         </div>
       </article>
     </div>
             </section>
             
   </main>
+
+  <div class="modal-backdrop" id="htmlModal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="modalTitle">Blog HTML</h3>
+        <div class="modal-actions">
+          <button class="button" type="button" onclick="copyHtmlCode()">Copy HTML</button>
+          <button class="button ghost" type="button" onclick="closeHtmlModal()">Close</button>
+        </div>
+      </div>
+      <textarea id="htmlCode" spellcheck="false"></textarea>
+    </div>
+  </div>
+
   <script>
-    function copyText(text) {
-      navigator.clipboard.writeText(text).then(function() {
-        alert('Copied: ' + text);
-      });
+    const WORKER_URL = "";
+    const WORKER_CONNECTED = false;
+    const ACTIONS_URL = "https://github.com/muhammadhassanali826/dog-blog-agent/actions/workflows/daily-blog-generator.yml";
+
+    const form = document.getElementById('generateForm');
+    const triggerStatus = document.getElementById('triggerStatus');
+
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const blogsPerDay = document.getElementById('blogCount').value || '20';
+      const dryRun = document.getElementById('aiMode').value;
+      const pin = document.getElementById('agentPin').value || '';
+
+      if (!WORKER_CONNECTED || !WORKER_URL) {
+        triggerStatus.innerHTML = 'Direct website trigger is not connected yet. Opening GitHub Actions. Choose <strong>blogs_per_day=' + blogsPerDay + '</strong> and <strong>dry_run=' + dryRun + '</strong> there.';
+        window.open(ACTIONS_URL, '_blank', 'noopener');
+        return;
+      }
+
+      triggerStatus.textContent = 'Starting workflow...';
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-agent-pin': pin },
+          body: JSON.stringify({ blogs_per_day: blogsPerDay, dry_run: dryRun })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Trigger failed');
+        triggerStatus.innerHTML = 'Workflow started. Wait 5–10 minutes, then refresh this page. <a href="' + ACTIONS_URL + '" target="_blank" rel="noopener">Open GitHub Actions</a>';
+      } catch (error) {
+        triggerStatus.textContent = 'Could not trigger workflow: ' + error.message;
+      }
+    });
+
+    async function openHtmlModal(path, title) {
+      const modal = document.getElementById('htmlModal');
+      const code = document.getElementById('htmlCode');
+      const modalTitle = document.getElementById('modalTitle');
+      modalTitle.textContent = 'HTML: ' + title;
+      code.value = 'Loading HTML from ' + path + '...';
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+
+      try {
+        const response = await fetch(path + '?v=' + Date.now());
+        const text = await response.text();
+        const doc = new DOMParser().parseFromString(text, 'text/html');
+        const raw = doc.querySelector('#rawHtmlCode');
+        code.value = raw ? raw.value : text;
+      } catch (error) {
+        code.value = 'Could not load HTML: ' + error.message;
+      }
+    }
+
+    function closeHtmlModal() {
+      const modal = document.getElementById('htmlModal');
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    async function copyHtmlCode() {
+      const code = document.getElementById('htmlCode');
+      await navigator.clipboard.writeText(code.value);
+      alert('Blog HTML copied.');
+    }
+
+    async function copySeoDetails(item) {
+      const text = `Blog Title:
+${item.blog_title}
+
+Excerpt:
+${item.excerpt}
+
+Search Engine Listing Page Title:
+${item.page_title}
+
+Meta Description:
+${item.meta_description}
+
+URL Handle:
+${item.url_handle}
+
+SEO Keywords:
+${item.seo_keywords}
+
+HTML File:
+${item.html_file}`;
+      await navigator.clipboard.writeText(text);
+      alert('SEO details copied.');
     }
   </script>
 </body>
