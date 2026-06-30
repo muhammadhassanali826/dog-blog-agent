@@ -264,10 +264,10 @@ def render_index(items: List[Dict[str, Any]]) -> str:
       const dryRun = document.getElementById('aiMode').value;
       const pin = document.getElementById('agentPin').value || '';
 
-      function showStatus(message) {
+      function showStatus(message) {{
         triggerStatus.style.display = 'block';
         triggerStatus.innerHTML = message;
-      }
+      }}
 
       if (!WORKER_CONNECTED || !WORKER_URL) {{
         showStatus('Direct website trigger is not connected yet. Opening GitHub Actions. Choose <strong>blogs_per_day=' + blogsPerDay + '</strong>, <strong>dry_run=' + dryRun + '</strong>, and <strong>clear_previous=true</strong> there.');
