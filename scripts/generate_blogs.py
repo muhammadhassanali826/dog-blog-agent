@@ -452,11 +452,11 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
 
 {body}
 <script>
-  function selectRawHtml() {
+  function selectRawHtml() {{
     const el = document.getElementById('rawHtmlCode');
     el.focus();
     el.select();
-  }
+  }}
 
   async function copyRawHtml() {{
     const el = document.getElementById('rawHtmlCode');
