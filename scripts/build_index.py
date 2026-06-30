@@ -286,6 +286,46 @@ def render_index(items: List[Dict[str, Any]]) -> str:
       }}
     }});
 
+    async function getBlogHtml(path) {{
+      const response = await fetch(path + '?v=' + Date.now(), {{ cache: 'no-store' }});
+      if (!response.ok) throw new Error('Could not open ' + path);
+      const text = await response.text();
+      const doc = new DOMParser().parseFromString(text, 'text/html');
+      const raw = doc.querySelector('#rawHtmlCode');
+      return raw ? raw.value : text;
+    }}
+
+    async function copyText(text, successMessage) {{
+      try {{
+        if (navigator.clipboard && window.isSecureContext) {{
+          await navigator.clipboard.writeText(text);
+        }} else {{
+          const temp = document.createElement('textarea');
+          temp.value = text;
+          temp.style.position = 'fixed';
+          temp.style.left = '-9999px';
+          temp.style.top = '-9999px';
+          document.body.appendChild(temp);
+          temp.focus();
+          temp.select();
+          document.execCommand('copy');
+          temp.remove();
+        }}
+        alert(successMessage);
+      }} catch (error) {{
+        alert('Copy failed. Click View HTML, select the code, and copy manually. Error: ' + error.message);
+      }}
+    }}
+
+    async function copyHtmlFromFile(path, title) {{
+      try {{
+        const html = await getBlogHtml(path);
+        await copyText(html, 'HTML copied for: ' + title);
+      }} catch (error) {{
+        alert('Could not copy HTML automatically. Click Open Draft or View HTML and copy from there. Error: ' + error.message);
+      }}
+    }}
+
     async function openHtmlModal(path, title) {{
       const modal = document.getElementById('htmlModal');
       const code = document.getElementById('htmlCode');
@@ -296,11 +336,7 @@ def render_index(items: List[Dict[str, Any]]) -> str:
       modal.setAttribute('aria-hidden', 'false');
 
       try {{
-        const response = await fetch(path + '?v=' + Date.now());
-        const text = await response.text();
-        const doc = new DOMParser().parseFromString(text, 'text/html');
-        const raw = doc.querySelector('#rawHtmlCode');
-        code.value = raw ? raw.value : text;
+        code.value = await getBlogHtml(path);
       }} catch (error) {{
         code.value = 'Could not load HTML: ' + error.message;
       }}
@@ -314,14 +350,12 @@ def render_index(items: List[Dict[str, Any]]) -> str:
 
     async function copyHtmlCode() {{
       const code = document.getElementById('htmlCode');
-      await navigator.clipboard.writeText(code.value);
-      alert('Blog HTML copied.');
+      await copyText(code.value, 'Blog HTML copied.');
     }}
 
     async function copySeoDetails(item) {{
       const text = `Blog Title:\n${{item.blog_title}}\n\nExcerpt:\n${{item.excerpt}}\n\nSearch Engine Listing Page Title:\n${{item.page_title}}\n\nMeta Description:\n${{item.meta_description}}\n\nURL Handle:\n${{item.url_handle}}\n\nSEO Keywords:\n${{item.seo_keywords}}\n\nHTML File:\n${{item.html_file}}`;
-      await navigator.clipboard.writeText(text);
-      alert('SEO details copied.');
+      await copyText(text, 'SEO details copied.');
     }}
   </script>
 </body>
