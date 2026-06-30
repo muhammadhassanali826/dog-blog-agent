@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 """
-Generate 20 dog blog drafts per day with Gemini API.
+AI-driven dog blog generator for the GitHub-only Dog Blog AI Agent.
 
-This script:
-- Reads pending topics from data/topics.csv
-- Reads product card data from data/products.json
-- Calls Gemini once per topic
-- Saves each generated blog as blogs/YYYY-MM-DD-url-handle.html
-- Updates data/generated_blogs.json
-- Marks used topics as generated in topics.csv
-
-No Shopify publishing is included.
+New behavior:
+- Does NOT depend on data/topics.csv.
+- Uses Gemini to create fresh SEO topics automatically.
+- Uses Gemini again to write the full blog HTML for each topic.
+- Keeps data/products.json for product recommendations.
+- Stores topic history in data/topic_history.json to reduce duplicate topics.
+- Clears old dashboard drafts when CLEAR_PREVIOUS=true.
+- No Shopify publishing.
 """
 
 from __future__ import annotations
 
-import csv
 import datetime as dt
 import html
 import json
@@ -31,11 +29,13 @@ from typing import Any, Dict, List
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 BLOGS_DIR = ROOT / "blogs"
-TOPICS_CSV = DATA_DIR / "topics.csv"
 PRODUCTS_JSON = DATA_DIR / "products.json"
 GENERATED_JSON = DATA_DIR / "generated_blogs.json"
+TOPIC_HISTORY_JSON = DATA_DIR / "topic_history.json"
+TOPIC_RULES_JSON = DATA_DIR / "topic_rules.json"
 
 BLOGS_PER_DAY = int(os.getenv("BLOGS_PER_DAY", "20"))
+BLOGS_PER_DAY = min(max(BLOGS_PER_DAY, 1), 20)
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 SLEEP_SECONDS = float(os.getenv("SLEEP_SECONDS_BETWEEN_CALLS", "6"))
@@ -47,73 +47,101 @@ BRAND_NAME = "Brutus & Barnaby"
 BRAND_SITE = "https://brutusandbarnaby.com"
 ORANGE = "#f02400"
 
+DEFAULT_PRODUCTS = [
+    {
+        "name": "Training Treats",
+        "best_for": ["training", "puppies", "recall", "reward", "begging", "manners"],
+        "url": "https://brutusandbarnaby.com/collections/training-treats",
+        "image": "https://brutusandbarnaby.com/cdn/shop/files/Sweet-potato-chicken-flavour-training-treats-for-dogs.jpg?v=1780585838",
+        "cta": "Shop Training Treats",
+        "benefits": ["Easy to portion", "Great for repeated rewards", "Useful for calm behavior", "Helpful for puppy training"],
+    },
+    {
+        "name": "Bully Sticks",
+        "best_for": ["chewing", "boredom", "rawhide alternative", "power chewers", "puppy chews", "dental chews"],
+        "url": "https://brutusandbarnaby.com/products/natural-bully-sticks",
+        "image": "https://cdn.shopify.com/s/files/1/2502/9690/files/61b7eT8ehkL._AC_9407a40e-351d-44c4-b5ea-4d5f9b4e36b2.jpg?v=1704211819",
+        "cta": "Shop Bully Sticks",
+        "benefits": ["Rawhide-free chew option", "Great for supervised chew time", "Helps keep dogs busy", "Made for dogs who love to gnaw"],
+    },
+    {
+        "name": "Cow Ears",
+        "best_for": ["chewing", "lighter chews", "rawhide alternative", "boredom", "dental chewing"],
+        "url": "https://brutusandbarnaby.com/products/cow-ears-for-dogs",
+        "image": "https://cdn.shopify.com/s/files/1/2502/9690/files/Cow-ears-for-dogs-by-Brutus-Barnaby.jpg?v=1780582538",
+        "cta": "Shop Cow Ears",
+        "benefits": ["Natural chew option", "Good for supervised downtime", "Rawhide-free", "Helps redirect chewing"],
+    },
+    {
+        "name": "Sweet Potato Treats",
+        "best_for": ["sweet potato", "lighter treats", "sensitive stomach", "snacking", "low fat"],
+        "url": "https://brutusandbarnaby.com/collections/sweet-potato-dog-treats",
+        "image": "https://brutusandbarnaby.com/cdn/shop/files/Sweet-potato-fries-dog-treats-by-Brutus-Barnaby.jpg?v=1780583148",
+        "cta": "Shop Sweet Potato Treats",
+        "benefits": ["Simple snack option", "Easy to portion", "Great for treat routines", "Useful for lighter treat days"],
+    },
+    {
+        "name": "Beef Lung Bites",
+        "best_for": ["high value", "training", "picky eaters", "recall", "single ingredient"],
+        "url": "https://brutusandbarnaby.com/products/beef-lung-bites",
+        "image": "https://brutusandbarnaby.com/cdn/shop/files/Beef-lung-bites-dog-treats.jpg?v=1780585048",
+        "cta": "Shop Beef Lung Bites",
+        "benefits": ["High-value reward", "Easy to break smaller", "Great for focus", "Simple beef treat"],
+    },
+]
+
 TRUSTED_EXTERNAL_LINKS = [
-    {
-        "label": "VCA Hospitals: Dog treats and moderation",
-        "url": "https://vcahospitals.com/know-your-pet/dog-treats",
-    },
-    {
-        "label": "AKC: How many treats can a dog have?",
-        "url": "https://www.akc.org/expert-advice/nutrition/how-many-treats-can-dog-have/",
-    },
-    {
-        "label": "ASPCA: Common dog behavior issues",
-        "url": "https://www.aspca.org/pet-care/dog-care/common-dog-behavior-issues",
-    },
-    {
-        "label": "PetMD: Dog nutrition basics",
-        "url": "https://www.petmd.com/dog/nutrition",
-    },
+    {"label": "VCA Hospitals: Dog treats and moderation", "url": "https://vcahospitals.com/know-your-pet/dog-treats"},
+    {"label": "AKC: How many treats can a dog have?", "url": "https://www.akc.org/expert-advice/nutrition/how-many-treats-can-dog-have/"},
+    {"label": "ASPCA: Common dog behavior issues", "url": "https://www.aspca.org/pet-care/dog-care/common-dog-behavior-issues"},
+    {"label": "PetMD: Dog nutrition basics", "url": "https://www.petmd.com/dog/nutrition"},
 ]
 
 INTERNAL_LINKS = [
-    {
-        "label": "Shop all natural dog treats",
-        "url": "https://brutusandbarnaby.com/collections/all",
-    },
-    {
-        "label": "Dog treat rotation guide",
-        "url": "https://brutusandbarnaby.com/blogs/dog-tips/dog-treat-rotation-guide",
-    },
-    {
-        "label": "Long-lasting dog chews for power chewers",
-        "url": "https://brutusandbarnaby.com/blogs/dog-tips/long-lasting-dog-chews-for-power-chewers",
-    },
+    {"label": "Shop all natural dog treats", "url": "https://brutusandbarnaby.com/collections/all"},
+    {"label": "Dog treat rotation guide", "url": "https://brutusandbarnaby.com/blogs/dog-tips/dog-treat-rotation-guide"},
+    {"label": "Long-lasting dog chews for power chewers", "url": "https://brutusandbarnaby.com/blogs/dog-tips/long-lasting-dog-chews-for-power-chewers"},
 ]
 
-
-def load_csv(path: Path) -> List[Dict[str, str]]:
-    if not path.exists():
-        raise FileNotFoundError(f"Missing file: {path}")
-    with path.open("r", encoding="utf-8-sig", newline="") as f:
-        return list(csv.DictReader(f))
-
-
-def write_csv(path: Path, rows: List[Dict[str, str]]) -> None:
-    if not rows:
-        return
-    fieldnames = list(rows[0].keys())
-    with path.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+DEFAULT_TOPIC_RULES = {
+    "brand": "Brutus & Barnaby",
+    "goal": "Generate fresh SEO blog topics automatically for a dog treats and chews brand.",
+    "daily_categories": [
+        "dog chewing safety",
+        "puppy treats and chews",
+        "senior dog treats",
+        "dog boredom and enrichment",
+        "rawhide alternatives",
+        "dog treat nutrition",
+        "training treats",
+        "dental chews",
+        "sensitive stomach treats",
+        "power chewer guides",
+        "can dogs eat topics",
+        "dog treat routines",
+    ],
+    "avoid_topics_about": [
+        "medical diagnosis",
+        "guaranteed health cures",
+        "unsafe feeding advice",
+        "recommending treats as treatment for disease",
+        "making claims that chews cure dental disease",
+    ],
+}
 
 
 def load_json(path: Path, default: Any) -> Any:
     if not path.exists():
         return default
-    with path.open("r", encoding="utf-8") as f:
-        try:
-            return json.load(f)
-        except json.JSONDecodeError:
-            return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return default
 
 
 def save_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def slugify(text: str, max_length: int = 80) -> str:
@@ -125,45 +153,197 @@ def slugify(text: str, max_length: int = 80) -> str:
 
 
 def clean_json_text(text: str) -> str:
-    """Extract JSON from model response even if it accidentally includes fences."""
+    """Extract JSON from a Gemini response even if it includes markdown fences."""
     text = text.strip()
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text)
         text = re.sub(r"\s*```$", "", text)
-    first = text.find("{")
-    last = text.rfind("}")
-    if first != -1 and last != -1 and last > first:
+
+    starts = [pos for pos in (text.find("{"), text.find("[")) if pos != -1]
+    if not starts:
+        return text
+    first = min(starts)
+
+    last_obj = text.rfind("}")
+    last_arr = text.rfind("]")
+    last = max(last_obj, last_arr)
+    if last != -1 and last > first:
         return text[first : last + 1]
     return text
 
 
-def pick_relevant_products(topic: Dict[str, str], products: List[Dict[str, Any]], limit: int = 4) -> List[Dict[str, Any]]:
-    searchable = " ".join(
-        [
-            topic.get("topic", ""),
-            topic.get("main_keyword", ""),
-            topic.get("product_focus", ""),
-            topic.get("category", ""),
-        ]
-    ).lower()
+def call_gemini_json(prompt: str, max_output_tokens: int = 16000, temperature: float = 0.75) -> Any:
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY is missing. Add it in GitHub Secrets.")
 
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+    payload = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": temperature,
+            "topP": 0.95,
+            "maxOutputTokens": max_output_tokens,
+            "responseMimeType": "application/json",
+        },
+    }
+    body = json.dumps(payload).encode("utf-8")
+    headers = {"Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY}
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=220) as resp:
+                raw = resp.read().decode("utf-8")
+            data = json.loads(raw)
+            text = data["candidates"][0]["content"]["parts"][0]["text"]
+            return json.loads(clean_json_text(text))
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode("utf-8", errors="ignore")
+            print(f"Gemini HTTP error attempt {attempt}/{MAX_RETRIES}: {e.code} {error_body[:700]}")
+            if e.code in (429, 500, 502, 503, 504) and attempt < MAX_RETRIES:
+                time.sleep(30 * attempt)
+                continue
+            raise
+        except Exception as e:
+            print(f"Gemini error attempt {attempt}/{MAX_RETRIES}: {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(15 * attempt)
+                continue
+            raise
+
+    raise RuntimeError("Gemini request failed after retries.")
+
+
+def normalize_product_name(name: str, products: List[Dict[str, Any]]) -> str:
+    if not products:
+        return name.strip() or "Natural Dog Treats"
+    names = [str(p.get("name", "")).strip() for p in products if p.get("name")]
+    if not names:
+        return name.strip() or "Natural Dog Treats"
+    lowered = (name or "").strip().lower()
+    for existing in names:
+        if lowered == existing.lower():
+            return existing
+    for existing in names:
+        if existing.lower() in lowered or lowered in existing.lower():
+            return existing
+    return names[0]
+
+
+def fake_topics(count: int, products: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+    seeds = [
+        ("Are Bully Sticks Safe for Puppies? Safety Guide & Tips", "bully sticks for puppies", "Bully Sticks", "puppy chews"),
+        ("Best Dog Chews for Bored Dogs: Natural Enrichment Ideas", "dog chews for boredom", "Cow Ears", "enrichment"),
+        ("Can Dogs Eat Sweet Potatoes? Treat Safety & Benefits Guide", "can dogs eat sweet potatoes", "Sweet Potato Treats", "dog nutrition"),
+        ("How Many Treats Can a Dog Have Per Day? Simple Portion Guide", "dog treats per day", "Training Treats", "dog treats"),
+        ("Best Natural Dog Treats for Picky Eaters", "dog treats for picky eaters", "Beef Lung Bites", "dog treats"),
+        ("Bully Sticks vs Rawhide: Which Chew Is Better for Dogs?", "bully sticks vs rawhide", "Bully Sticks", "rawhide alternatives"),
+    ]
+    topics: List[Dict[str, str]] = []
+    for i in range(count):
+        topic, keyword, product, category = seeds[i % len(seeds)]
+        if i >= len(seeds):
+            topic = f"{topic} #{i + 1}"
+        topics.append({"topic": topic, "main_keyword": keyword, "product_focus": normalize_product_name(product, products), "category": category})
+    return topics
+
+
+def generate_topics_with_ai(count: int, products: List[Dict[str, Any]], history: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+    product_names = [p.get("name", "") for p in products if p.get("name")]
+    recent_titles = []
+    for item in reversed(history[-120:]):
+        title = item.get("blog_title") or item.get("topic") or item.get("title")
+        if title:
+            recent_titles.append(str(title))
+    recent_titles = recent_titles[-80:]
+    rules = load_json(TOPIC_RULES_JSON, DEFAULT_TOPIC_RULES)
+
+    prompt = f"""
+You are an SEO topic strategist for {BRAND_NAME}, a dog treats and chews brand.
+
+Create {count} fresh blog topic ideas for daily SEO blog drafts.
+
+Brand website: {BRAND_SITE}
+Available product focus options: {json.dumps(product_names, ensure_ascii=False)}
+Topic rules: {json.dumps(rules, ensure_ascii=False, indent=2)}
+Avoid repeating or closely duplicating these recent topics: {json.dumps(recent_titles, ensure_ascii=False, indent=2)}
+
+Return valid JSON only. No markdown. No explanation.
+
+Schema:
+[
+  {{
+    "topic": "",
+    "main_keyword": "",
+    "product_focus": "one exact product name from available product focus options",
+    "category": ""
+  }}
+]
+
+Topic rules:
+- Make every topic unique and SEO-searchable.
+- Use topics dog owners actually search for.
+- Mix informational, comparison, safety, routine, puppy, senior, boredom, dental, and product-intent topics.
+- Avoid medical diagnosis and cure claims.
+- Do not create seasonal topics unless broadly evergreen.
+- Make product_focus relevant to the topic.
+- main_keyword should be a real search phrase, not a sentence.
+- category should be short, like "dog chews", "puppy treats", "dog nutrition", "enrichment", "training".
+""".strip()
+
+    raw = call_gemini_json(prompt, max_output_tokens=5000, temperature=0.85)
+    if isinstance(raw, dict):
+        raw_topics = raw.get("topics") or raw.get("data") or []
+    else:
+        raw_topics = raw
+    if not isinstance(raw_topics, list):
+        raise ValueError("AI topic response was not a JSON array.")
+
+    topics: List[Dict[str, str]] = []
+    seen_slugs = set()
+    for item in raw_topics:
+        if not isinstance(item, dict):
+            continue
+        topic = str(item.get("topic", "")).strip()
+        keyword = str(item.get("main_keyword", "")).strip()
+        category = str(item.get("category", "dog treats")).strip()
+        product_focus = normalize_product_name(str(item.get("product_focus", "")).strip(), products)
+        if not topic or not keyword:
+            continue
+        key = slugify(topic, 100)
+        if key in seen_slugs:
+            continue
+        seen_slugs.add(key)
+        topics.append({"topic": topic, "main_keyword": keyword, "product_focus": product_focus, "category": category})
+        if len(topics) >= count:
+            break
+
+    if len(topics) < count:
+        for fallback in fake_topics(count - len(topics), products):
+            fallback["topic"] = f"{fallback['topic']} Fresh Guide"
+            topics.append(fallback)
+
+    return topics[:count]
+
+
+def pick_relevant_products(topic: Dict[str, str], products: List[Dict[str, Any]], limit: int = 4) -> List[Dict[str, Any]]:
+    if not products:
+        products = DEFAULT_PRODUCTS
+    searchable = " ".join([topic.get("topic", ""), topic.get("main_keyword", ""), topic.get("product_focus", ""), topic.get("category", "")]).lower()
     scored = []
     for product in products:
         score = 0
-        name = product.get("name", "").lower()
+        name = str(product.get("name", "")).lower()
         if name and name in searchable:
             score += 8
+        if topic.get("product_focus", "").lower() == name:
+            score += 14
         for phrase in product.get("best_for", []):
             if str(phrase).lower() in searchable:
                 score += 3
-        if topic.get("product_focus", "").lower() == name:
-            score += 12
         scored.append((score, product))
-
     scored.sort(key=lambda item: item[0], reverse=True)
     selected = [product for score, product in scored if score > 0][:limit]
-
-    # Always include some fallback products so the blog can create product cards.
     if len(selected) < limit:
         for _, product in scored:
             if product not in selected:
@@ -173,11 +353,7 @@ def pick_relevant_products(topic: Dict[str, str], products: List[Dict[str, Any]]
     return selected[:limit]
 
 
-def build_prompt(topic: Dict[str, str], products: List[Dict[str, Any]]) -> str:
-    product_json = json.dumps(products, ensure_ascii=False, indent=2)
-    internal_json = json.dumps(INTERNAL_LINKS, ensure_ascii=False, indent=2)
-    external_json = json.dumps(TRUSTED_EXTERNAL_LINKS, ensure_ascii=False, indent=2)
-
+def build_blog_prompt(topic: Dict[str, str], products: List[Dict[str, Any]]) -> str:
     return f"""
 You are the Brutus & Barnaby SEO blog generator.
 
@@ -192,13 +368,13 @@ Brand website: {BRAND_SITE}
 Accent color: {ORANGE}
 
 Use these products for product recommendation cards:
-{product_json}
+{json.dumps(products, ensure_ascii=False, indent=2)}
 
 Use 1-2 internal links from this list:
-{internal_json}
+{json.dumps(INTERNAL_LINKS, ensure_ascii=False, indent=2)}
 
 Use 2-3 external trusted links from this list only:
-{external_json}
+{json.dumps(TRUSTED_EXTERNAL_LINKS, ensure_ascii=False, indent=2)}
 
 REQUIRED OUTPUT:
 Return valid JSON only. No markdown. No explanation.
@@ -217,7 +393,7 @@ JSON schema:
 }}
 
 FIELD RULES:
-- blog_title: natural, high-click SEO title. Do not exceed 75 characters unless needed.
+- blog_title: natural, high-click SEO title. Keep it close to the topic.
 - excerpt: 1-2 sentence blog excerpt, conversion-aware but educational.
 - page_title: SEO page title, ideally 50-65 characters.
 - meta_description: SEO meta description, ideally 140-160 characters.
@@ -250,7 +426,7 @@ CONTENT RULES:
 - Write for dog owners/pet parents.
 - Tone: helpful, warm, educational, conversion-focused.
 - Avoid medical claims.
-- Use safe wording: “may help,” “can support,” “can be part of a routine,” “ask your veterinarian.”
+- Use safe wording: “may help,” “can support,” “can be part of a routine,” and “ask your veterinarian.”
 - Mention vet guidance for sudden symptoms, allergies, choking, digestion, weight loss, vomiting, diarrhea, increased thirst, or medical concerns.
 - Do not say Brutus & Barnaby products cure or treat medical conditions.
 - Do not keyword stuff.
@@ -261,66 +437,14 @@ CONTENT RULES:
 """.strip()
 
 
-def call_gemini(prompt: str) -> Dict[str, Any]:
-    if not GEMINI_API_KEY:
-        raise RuntimeError("GEMINI_API_KEY is missing. Add it in GitHub Secrets.")
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
-    payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{"text": prompt}],
-            }
-        ],
-        "generationConfig": {
-            "temperature": 0.78,
-            "topP": 0.95,
-            "maxOutputTokens": 16000,
-            "responseMimeType": "application/json",
-        },
-    }
-
-    body = json.dumps(payload).encode("utf-8")
-    headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": GEMINI_API_KEY,
-    }
-
-    for attempt in range(1, MAX_RETRIES + 1):
-        req = urllib.request.Request(url, data=body, headers=headers, method="POST")
-        try:
-            with urllib.request.urlopen(req, timeout=180) as resp:
-                raw = resp.read().decode("utf-8")
-            data = json.loads(raw)
-            text = data["candidates"][0]["content"]["parts"][0]["text"]
-            return json.loads(clean_json_text(text))
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode("utf-8", errors="ignore")
-            print(f"Gemini HTTP error attempt {attempt}/{MAX_RETRIES}: {e.code} {error_body[:500]}")
-            if e.code in (429, 500, 502, 503, 504) and attempt < MAX_RETRIES:
-                time.sleep(30 * attempt)
-                continue
-            raise
-        except Exception as e:
-            print(f"Gemini error attempt {attempt}/{MAX_RETRIES}: {e}")
-            if attempt < MAX_RETRIES:
-                time.sleep(15 * attempt)
-                continue
-            raise
-
-    raise RuntimeError("Gemini request failed after retries.")
-
-
 def fake_blog(topic: Dict[str, str], products: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Used only when DRY_RUN=true for testing the workflow without API calls."""
     title = topic.get("topic", "Dog Blog Draft").strip()
     slug = slugify(title)
-    product = products[0]
+    product = products[0] if products else DEFAULT_PRODUCTS[0]
     product_card = f"""
       <div style=\"border:1px solid #f3d2c2;border-radius:14px;padding:1.4em;margin:2em 0;background:#fff8f3;display:flex;gap:1.4em;align-items:center;flex-wrap:wrap;\">
-        <div style=\"flex:0 0 180px;max-width:260px;\"><img src=\"{html.escape(product.get('image',''))}\" alt=\"{html.escape(product.get('name','Dog treats'))}\" style=\"width:100%;border-radius:12px;display:block;\"></div>
-        <div style=\"flex:1;min-width:240px;\"><div style=\"font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#f02400;margin-bottom:8px;\">Recommended Pick</div><h3 style=\"color:#1a1208;margin:0 0 .5em;font-size:18px;line-height:1.25;\">{html.escape(product.get('name','Natural Dog Treats'))}</h3><p style=\"margin-top:0;line-height:1.7;color:#3a2a1a;font-size:15px;\">A useful product match for this blog topic.</p><a href=\"{html.escape(product.get('url','#'))}\" style=\"display:inline-block;background:#f02400;color:#ffffff;font-weight:800;text-decoration:none;padding:.85em 1.25em;border-radius:999px;font-size:13px;\">{html.escape(product.get('cta','Shop Now'))}</a></div>
+        <div style=\"flex:0 0 180px;max-width:260px;\"><img src=\"{html.escape(str(product.get('image','')))}\" alt=\"{html.escape(str(product.get('name','Dog treats')))}\" style=\"width:100%;border-radius:12px;display:block;\"></div>
+        <div style=\"flex:1;min-width:240px;\"><div style=\"font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#f02400;margin-bottom:8px;\">Recommended Pick</div><h3 style=\"color:#1a1208;margin:0 0 .5em;font-size:18px;line-height:1.25;\">{html.escape(str(product.get('name','Natural Dog Treats')))}</h3><p style=\"margin-top:0;line-height:1.7;color:#3a2a1a;font-size:15px;\">A useful product match for this blog topic.</p><a href=\"{html.escape(str(product.get('url','#')))}\" style=\"display:inline-block;background:#f02400;color:#ffffff;font-weight:800;text-decoration:none;padding:.85em 1.25em;border-radius:999px;font-size:13px;\">{html.escape(str(product.get('cta','Shop Now')))}</a></div>
       </div>
     """
     body = f"""
@@ -367,15 +491,10 @@ def validate_blog(data: Dict[str, Any], fallback_topic: Dict[str, str]) -> Dict[
     html_body = str(data.get("html") or "").strip()
     if not html_body:
         raise ValueError("Generated blog missing html field.")
-
     return {
         "blog_title": title,
         "excerpt": excerpt,
-        "search_engine_listing": {
-            "page_title": page_title,
-            "meta_description": meta_description,
-            "url_handle": url_handle,
-        },
+        "search_engine_listing": {"page_title": page_title, "meta_description": meta_description, "url_handle": url_handle},
         "seo_keywords": keywords,
         "html": html_body,
     }
@@ -388,57 +507,55 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
     blog_title = html.escape(blog.get("blog_title", "Dog Blog Draft"))
     excerpt = html.escape(blog.get("excerpt", ""))
     handle = html.escape(listing.get("url_handle", ""))
-    keywords = ", ".join(blog.get("seo_keywords", []))
+    keywords = ", ".join(str(k) for k in blog.get("seo_keywords", []))
     keywords_escaped = html.escape(keywords)
     body = blog.get("html", "")
     raw_body = html.escape(body)
 
-    return f"""<!doctype html>
-<html lang=\"en\">
+    template = r'''<!doctype html>
+<html lang="en">
 <head>
-  <meta charset=\"utf-8\">
-  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-  <meta name=\"robots\" content=\"noindex, nofollow\">
-  <title>{title}</title>
-  <meta name=\"description\" content=\"{desc}\">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>__TITLE__</title>
+  <meta name="description" content="__DESC__">
   <style>
-    body {{ margin: 0; background: #fffaf6; color: #1a1208; }}
-    .agent-preview-bar {{ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#fff; border-bottom:1px solid #ead7cc; padding:18px 24px; }}
-    .agent-preview-bar a {{ color:#f02400; font-weight:800; }}
-    .agent-meta {{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:12px; }}
-    .agent-meta div {{ background:#fff8f3; border:1px solid #f3d2c2; border-radius:10px; padding:12px; font-size:13px; line-height:1.55; }}
-    .agent-copy {{ border:0; background:#f02400; color:#fff; font-weight:800; border-radius:999px; padding:10px 16px; cursor:pointer; }}
-    .agent-html-panel {{ margin-top:14px; background:#111; border-radius:12px; overflow:hidden; border:1px solid #2c2c2c; }}
-    .agent-html-head {{ display:flex; justify-content:space-between; gap:10px; align-items:center; padding:12px 14px; color:#fff; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; border-bottom:1px solid #333; }}
-    .agent-html-head strong {{ color:#fff; }}
-    #rawHtmlCode {{ width:100%; min-height:280px; border:0; outline:none; resize:vertical; padding:16px; background:#111; color:#fff; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; font-size:13px; line-height:1.5; }}
-    @media (max-width: 640px) {{
-      .agent-preview-bar {{ padding:14px; }}
-      div[style*=\"padding:48px 44px\"] {{ padding:34px 22px !important; }}
-      div[style*=\"padding:28px 44px\"] {{ padding:24px 22px !important; }}
-      div[style*=\"padding:36px 44px\"] {{ padding:30px 22px !important; }}
-      div[style*=\"padding:22px 44px\"] {{ padding:20px 22px !important; }}
-    }}
+    body { margin: 0; background: #fffaf6; color: #1a1208; }
+    .agent-preview-bar { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#fff; border-bottom:1px solid #ead7cc; padding:18px 24px; }
+    .agent-preview-bar a { color:#f02400; font-weight:800; }
+    .agent-meta { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:12px; }
+    .agent-meta div { background:#fff8f3; border:1px solid #f3d2c2; border-radius:10px; padding:12px; font-size:13px; line-height:1.55; }
+    .agent-copy { border:0; background:#f02400; color:#fff; font-weight:800; border-radius:999px; padding:10px 16px; cursor:pointer; }
+    .agent-html-panel { margin-top:14px; background:#111; border-radius:12px; overflow:hidden; border:1px solid #2c2c2c; }
+    .agent-html-head { display:flex; justify-content:space-between; gap:10px; align-items:center; padding:12px 14px; color:#fff; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; border-bottom:1px solid #333; flex-wrap:wrap; }
+    .agent-html-head strong { color:#fff; }
+    #rawHtmlCode { width:100%; min-height:280px; border:0; outline:none; resize:vertical; padding:16px; background:#111; color:#fff; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; font-size:13px; line-height:1.5; }
+    @media (max-width: 640px) {
+      .agent-preview-bar { padding:14px; }
+      div[style*="padding:48px 44px"] { padding:34px 22px !important; }
+      div[style*="padding:28px 44px"] { padding:24px 22px !important; }
+      div[style*="padding:36px 44px"] { padding:30px 22px !important; }
+      div[style*="padding:22px 44px"] { padding:20px 22px !important; }
+    }
   </style>
 </head>
 <body>
-  <div class=\"agent-preview-bar\">
-    <div style=\"display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;\">
+  <div class="agent-preview-bar">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
       <div>
-        <strong>Draft Preview:</strong> {blog_title}<br>
-        <span style=\"color:#6b5d52;font-size:13px;\">Generated: {html.escape(generated_date)}</span>
+        <strong>Draft Preview:</strong> __BLOG_TITLE__<br>
+        <span style="color:#6b5d52;font-size:13px;">Generated: __GENERATED_DATE__</span>
       </div>
-      <div>
-        <a href=\"../index.html\">← Back to all drafts</a>
-      </div>
+      <div><a href="../index.html">← Back to all drafts</a></div>
     </div>
-    <div class=\"agent-meta\">
-      <div><strong>Blog Title</strong><br>{blog_title}</div>
-      <div><strong>Excerpt</strong><br>{excerpt}</div>
-      <div><strong>Page Title</strong><br>{title}</div>
-      <div><strong>Meta Description</strong><br>{desc}</div>
-      <div><strong>URL Handle</strong><br>{handle}</div>
-      <div><strong>SEO Keywords</strong><br>{keywords_escaped}</div>
+    <div class="agent-meta">
+      <div><strong>Blog Title</strong><br>__BLOG_TITLE__</div>
+      <div><strong>Excerpt</strong><br>__EXCERPT__</div>
+      <div><strong>Page Title</strong><br>__TITLE__</div>
+      <div><strong>Meta Description</strong><br>__DESC__</div>
+      <div><strong>URL Handle</strong><br>__HANDLE__</div>
+      <div><strong>SEO Keywords</strong><br>__KEYWORDS__</div>
     </div>
     <div class="agent-html-panel" id="html-copy">
       <div class="agent-html-head">
@@ -446,45 +563,50 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
         <button class="agent-copy" type="button" onclick="selectRawHtml()">Select All</button>
         <button class="agent-copy" type="button" onclick="copyRawHtml()">Copy HTML</button>
       </div>
-      <textarea id="rawHtmlCode" spellcheck="false">{raw_body}</textarea>
+      <textarea id="rawHtmlCode" spellcheck="false">__RAW_BODY__</textarea>
     </div>
   </div>
 
-{body}
+__BODY__
 <script>
-  function selectRawHtml() {{
+  function selectRawHtml() {
     const el = document.getElementById('rawHtmlCode');
     el.focus();
     el.select();
-  }}
-
-  async function copyRawHtml() {{
+  }
+  async function copyRawHtml() {
     const el = document.getElementById('rawHtmlCode');
     selectRawHtml();
-    try {{
-      if (navigator.clipboard && window.isSecureContext) {{
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(el.value);
-      }} else {{
-        el.focus();
-        el.select();
+      } else {
         document.execCommand('copy');
-      }}
+      }
       alert('Blog HTML copied.');
-    }} catch (error) {{
+    } catch (error) {
       alert('Copy failed. Select the HTML box manually and press Ctrl+C. Error: ' + error.message);
-    }}
-  }}
+    }
+  }
 </script>
 </body>
 </html>
-"""
+'''
+    return (
+        template.replace("__TITLE__", title)
+        .replace("__DESC__", desc)
+        .replace("__BLOG_TITLE__", blog_title)
+        .replace("__EXCERPT__", excerpt)
+        .replace("__HANDLE__", handle)
+        .replace("__KEYWORDS__", keywords_escaped)
+        .replace("__RAW_BODY__", raw_body)
+        .replace("__BODY__", body)
+        .replace("__GENERATED_DATE__", html.escape(generated_date))
+    )
 
 
 def clear_previous_drafts() -> None:
-    """Remove old dashboard draft records and old generated HTML pages."""
-    GENERATED_JSON.parent.mkdir(parents=True, exist_ok=True)
     save_json(GENERATED_JSON, [])
-
     if BLOGS_DIR.exists():
         for path in BLOGS_DIR.glob("*.html"):
             try:
@@ -498,43 +620,49 @@ def main() -> int:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     BLOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-    topics = load_csv(TOPICS_CSV)
-    products = load_json(PRODUCTS_JSON, [])
+    products = load_json(PRODUCTS_JSON, DEFAULT_PRODUCTS)
+    if not isinstance(products, list) or not products:
+        products = DEFAULT_PRODUCTS
 
-    pending = [row for row in topics if row.get("status", "").strip().lower() == "pending"]
-    selected = pending[:BLOGS_PER_DAY]
-
-    if not selected:
-        print("No pending topics found. Nothing to generate. Old dashboard drafts were left as-is.")
-        return 0
+    history = load_json(TOPIC_HISTORY_JSON, [])
+    if not isinstance(history, list):
+        history = []
 
     if CLEAR_PREVIOUS:
         print("CLEAR_PREVIOUS=true, removing old generated dashboard drafts before saving the new batch.")
         clear_previous_drafts()
-        generated = []
+        generated: List[Dict[str, Any]] = []
     else:
         generated = load_json(GENERATED_JSON, [])
+        if not isinstance(generated, list):
+            generated = []
 
     today = dt.date.today().isoformat()
-    print(f"Generating {len(selected)} blog(s) for {today} using model {GEMINI_MODEL}. Clear previous: {CLEAR_PREVIOUS}")
+
+    print(f"Creating {BLOGS_PER_DAY} fresh topic(s) with AI. DRY_RUN={DRY_RUN}")
+    if DRY_RUN:
+        topics = fake_topics(BLOGS_PER_DAY, products)
+    else:
+        topics = generate_topics_with_ai(BLOGS_PER_DAY, products, history)
+
+    print("Topics selected for this run:")
+    for i, topic in enumerate(topics, 1):
+        print(f"  {i}. {topic.get('topic')} | {topic.get('main_keyword')} | {topic.get('product_focus')}")
 
     generated_count = 0
-    for index, topic in enumerate(selected, start=1):
-        print(f"\n[{index}/{len(selected)}] Topic: {topic.get('topic')}")
+    for index, topic in enumerate(topics, start=1):
+        print(f"\n[{index}/{len(topics)}] Writing blog: {topic.get('topic')}")
         relevant_products = pick_relevant_products(topic, products, limit=4)
         try:
             if DRY_RUN:
                 raw_blog = fake_blog(topic, relevant_products)
             else:
-                prompt = build_prompt(topic, relevant_products)
-                raw_blog = call_gemini(prompt)
+                raw_blog = call_gemini_json(build_blog_prompt(topic, relevant_products), max_output_tokens=16000, temperature=0.78)
 
             blog = validate_blog(raw_blog, topic)
             handle = blog["search_engine_listing"]["url_handle"]
             filename = f"{today}-{handle}.html"
             blog_path = BLOGS_DIR / filename
-
-            # Avoid overwriting if the model repeats a handle.
             suffix = 2
             while blog_path.exists():
                 filename = f"{today}-{handle}-{suffix}.html"
@@ -542,7 +670,6 @@ def main() -> int:
                 suffix += 1
 
             blog_path.write_text(render_blog_page(blog, today), encoding="utf-8")
-
             generated.append(
                 {
                     "date": today,
@@ -560,22 +687,29 @@ def main() -> int:
                     "html_file": f"blogs/{filename}",
                 }
             )
-
-            topic["status"] = "generated"
+            history.append(
+                {
+                    "date": today,
+                    "topic": topic.get("topic", ""),
+                    "main_keyword": topic.get("main_keyword", ""),
+                    "product_focus": topic.get("product_focus", ""),
+                    "category": topic.get("category", ""),
+                    "blog_title": blog["blog_title"],
+                    "url_handle": blog["search_engine_listing"]["url_handle"],
+                }
+            )
             generated_count += 1
             print(f"Saved: blogs/{filename}")
 
-            if not DRY_RUN and index < len(selected):
+            if not DRY_RUN and index < len(topics):
                 time.sleep(SLEEP_SECONDS)
-
         except Exception as e:
-            print(f"Failed topic '{topic.get('topic')}': {e}", file=sys.stderr)
-            topic["status"] = "error"
+            print(f"Failed blog '{topic.get('topic')}': {e}", file=sys.stderr)
 
     save_json(GENERATED_JSON, generated)
-    write_csv(TOPICS_CSV, topics)
-    print(f"\nDone. Generated {generated_count} blog(s).")
-    return 0
+    save_json(TOPIC_HISTORY_JSON, history[-500:])
+    print(f"\nDone. Generated {generated_count} blog(s). Topics are now AI-generated directly, no topics.csv needed.")
+    return 0 if generated_count > 0 else 1
 
 
 if __name__ == "__main__":
