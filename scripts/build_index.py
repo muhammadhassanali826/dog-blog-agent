@@ -81,7 +81,8 @@ def render_card(item: Dict[str, Any]) -> str:
         </div>
         <div class="actions">
           <a class="button" href="{esc(html_file)}" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button secondary" type="button" onclick="openHtmlModal({js_str(html_file)}, {js_str(item.get('blog_title'))})">View HTML</button>
+          <button class="button secondary" type="button" onclick="copyHtmlFromFile({js_str(html_file)}, {js_str(item.get('blog_title'))})">Copy HTML</button>
+          <button class="button ghost" type="button" onclick="openHtmlModal({js_str(html_file)}, {js_str(item.get('blog_title'))})">View HTML</button>
           <button class="button ghost" type="button" onclick='copySeoDetails({json.dumps(seo_payload, ensure_ascii=False)})'>Copy SEO</button>
         </div>
       </article>
