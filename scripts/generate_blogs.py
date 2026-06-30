@@ -41,6 +41,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 SLEEP_SECONDS = float(os.getenv("SLEEP_SECONDS_BETWEEN_CALLS", "6"))
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
 DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"
+CLEAR_PREVIOUS = os.getenv("CLEAR_PREVIOUS", "true").lower() == "true"
 
 BRAND_NAME = "Brutus & Barnaby"
 BRAND_SITE = "https://brutusandbarnaby.com"
@@ -439,9 +440,10 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
       <div><strong>URL Handle</strong><br>{handle}</div>
       <div><strong>SEO Keywords</strong><br>{keywords_escaped}</div>
     </div>
-    <div class="agent-html-panel">
+    <div class="agent-html-panel" id="html-copy">
       <div class="agent-html-head">
         <strong>Full Blog HTML</strong>
+        <button class="agent-copy" type="button" onclick="selectRawHtml()">Select All</button>
         <button class="agent-copy" type="button" onclick="copyRawHtml()">Copy HTML</button>
       </div>
       <textarea id="rawHtmlCode" spellcheck="false">{raw_body}</textarea>
@@ -450,8 +452,15 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
 
 {body}
 <script>
+  function selectRawHtml() {
+    const el = document.getElementById('rawHtmlCode');
+    el.focus();
+    el.select();
+  }
+
   async function copyRawHtml() {{
     const el = document.getElementById('rawHtmlCode');
+    selectRawHtml();
     try {{
       if (navigator.clipboard && window.isSecureContext) {{
         await navigator.clipboard.writeText(el.value);
@@ -471,23 +480,43 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
 """
 
 
+def clear_previous_drafts() -> None:
+    """Remove old dashboard draft records and old generated HTML pages."""
+    GENERATED_JSON.parent.mkdir(parents=True, exist_ok=True)
+    save_json(GENERATED_JSON, [])
+
+    if BLOGS_DIR.exists():
+        for path in BLOGS_DIR.glob("*.html"):
+            try:
+                path.unlink()
+                print(f"Deleted old draft: {path}")
+            except OSError as exc:
+                print(f"Could not delete old draft {path}: {exc}", file=sys.stderr)
+
+
 def main() -> int:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     BLOGS_DIR.mkdir(parents=True, exist_ok=True)
 
     topics = load_csv(TOPICS_CSV)
     products = load_json(PRODUCTS_JSON, [])
-    generated = load_json(GENERATED_JSON, [])
 
     pending = [row for row in topics if row.get("status", "").strip().lower() == "pending"]
     selected = pending[:BLOGS_PER_DAY]
 
     if not selected:
-        print("No pending topics found. Nothing to generate.")
+        print("No pending topics found. Nothing to generate. Old dashboard drafts were left as-is.")
         return 0
 
+    if CLEAR_PREVIOUS:
+        print("CLEAR_PREVIOUS=true, removing old generated dashboard drafts before saving the new batch.")
+        clear_previous_drafts()
+        generated = []
+    else:
+        generated = load_json(GENERATED_JSON, [])
+
     today = dt.date.today().isoformat()
-    print(f"Generating {len(selected)} blog(s) for {today} using model {GEMINI_MODEL}.")
+    print(f"Generating {len(selected)} blog(s) for {today} using model {GEMINI_MODEL}. Clear previous: {CLEAR_PREVIOUS}")
 
     generated_count = 0
     for index, topic in enumerate(selected, start=1):
