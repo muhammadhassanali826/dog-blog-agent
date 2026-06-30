@@ -452,8 +452,18 @@ def render_blog_page(blog: Dict[str, Any], generated_date: str) -> str:
 <script>
   async function copyRawHtml() {{
     const el = document.getElementById('rawHtmlCode');
-    await navigator.clipboard.writeText(el.value);
-    alert('Blog HTML copied.');
+    try {{
+      if (navigator.clipboard && window.isSecureContext) {{
+        await navigator.clipboard.writeText(el.value);
+      }} else {{
+        el.focus();
+        el.select();
+        document.execCommand('copy');
+      }}
+      alert('Blog HTML copied.');
+    }} catch (error) {{
+      alert('Copy failed. Select the HTML box manually and press Ctrl+C. Error: ' + error.message);
+    }}
   }}
 </script>
 </body>
