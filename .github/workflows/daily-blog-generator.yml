@@ -15,7 +15,7 @@ on:
         required: false
         default: "false"
       clear_previous:
-        description: "Clear old generated dashboard drafts before saving new ones? true/false"
+        description: "Clear old generated drafts before saving the new batch? true/false"
         required: false
         default: "true"
 
@@ -25,8 +25,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "dog-blog-pages"
-  cancel-in-progress: false
+  group: dog-blog-pages
+  cancel-in-progress: true
 
 jobs:
   generate-blogs:
@@ -44,14 +44,13 @@ jobs:
       CLEAR_PREVIOUS: ${{ github.event.inputs.clear_previous || 'true' }}
       SLEEP_SECONDS_BETWEEN_CALLS: "6"
       MAX_RETRIES: "3"
-      # Optional: after you deploy the Cloudflare Worker, add repo variable TRIGGER_WORKER_URL.
-      # Repo path: Settings → Secrets and variables → Actions → Variables → New repository variable
       TRIGGER_WORKER_URL: ${{ vars.TRIGGER_WORKER_URL }}
-      GITHUB_ACTIONS_URL: https://github.com/${{ github.repository }}/actions/workflows/daily-blog-generator.yml
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Fix folder structure
         run: |
@@ -83,6 +82,15 @@ jobs:
             echo "[]" > data/generated_blogs.json
           fi
 
+          echo "Folder check:"
+          ls -la
+          echo "Scripts:"
+          ls -la scripts
+          echo "Data:"
+          ls -la data
+          echo "Blogs:"
+          ls -la blogs
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -98,22 +106,40 @@ jobs:
         run: |
           git config user.name "dog-blog-agent"
           git config user.email "dog-blog-agent@users.noreply.github.com"
+
           git add scripts/ data/ blogs/ index.html
+
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
             git commit -m "Generate daily dog blog drafts"
-            git push
+
+            echo "Pulling latest remote changes before push..."
+            git pull --rebase origin main
+
+            echo "Pushing generated blog drafts..."
+            git push origin main
           fi
 
       - name: Prepare Pages site
         run: |
           rm -rf _site
           mkdir -p _site
+
           cp index.html _site/index.html
-          cp -r blogs _site/blogs
-          cp -r data _site/data
+
+          if [ -d blogs ]; then
+            cp -r blogs _site/blogs
+          fi
+
+          if [ -d data ]; then
+            cp -r data _site/data
+          fi
+
           touch _site/.nojekyll
+
+          echo "Prepared _site:"
+          ls -la _site
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
