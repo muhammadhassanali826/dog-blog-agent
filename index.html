@@ -3,337 +3,654 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dog Blog AI Agent</title>
+  <title>AI Blog Generator</title>
   <style>
     :root {
-      --orange:#ff2a10;
-      --orange2:#ff7a18;
-      --pink:#ff3d8b;
-      --purple:#6d5dfc;
-      --cyan:#00d4ff;
-      --green:#50f28f;
-      --dark:#08080f;
-      --cream:#fff7ef;
-      --text:#191316;
-      --muted:#675b60;
-      --line:rgba(255,91,42,.22);
-      --shadow:0 28px 70px rgba(45,18,5,.18);
-      --radius:28px;
+      --bg:#07070d;
+      --panel:#11131b;
+      --panel2:#171922;
+      --soft:#1d202c;
+      --text:#f5f7fb;
+      --muted:#b9c0cf;
+      --line:rgba(255,255,255,.08);
+      --orange:#ff5b22;
+      --orange2:#ff8a1e;
+      --red:#ff2d55;
+      --pink:#ff4fd8;
+      --cyan:#32d8ff;
+      --purple:#7269ff;
+      --green:#53ff96;
+      --shadow:0 20px 50px rgba(0,0,0,.35);
+      --radius:26px;
     }
 
     * { box-sizing:border-box; }
     html { scroll-behavior:smooth; }
     body {
       margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:
-        radial-gradient(circle at 18% 12%, rgba(255,62,139,.24), transparent 26%),
-        radial-gradient(circle at 88% 8%, rgba(0,212,255,.24), transparent 26%),
-        radial-gradient(circle at 70% 68%, rgba(109,93,252,.22), transparent 30%),
-        linear-gradient(135deg,#fff9f2 0%,#fff3ea 42%,#f3fbff 100%);
+        radial-gradient(circle at 15% 20%, rgba(255,91,34,.18), transparent 26%),
+        radial-gradient(circle at 85% 15%, rgba(50,216,255,.16), transparent 22%),
+        radial-gradient(circle at 75% 80%, rgba(114,105,255,.16), transparent 25%),
+        linear-gradient(180deg,#06070d 0%, #0d0f16 48%, #111521 100%);
       color:var(--text);
       overflow-x:hidden;
     }
 
-    body::before {
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      background-image:linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
-      background-size:38px 38px;
-      mask-image:linear-gradient(to bottom, rgba(0,0,0,.4), transparent 70%);
-      z-index:0;
+    .page {
+      position:relative;
+      min-height:100vh;
+      overflow:hidden;
     }
 
-    .page { position:relative; z-index:1; }
+    .side-dog {
+      position:fixed;
+      top:50%;
+      transform:translateY(-50%);
+      width:130px;
+      height:210px;
+      z-index:0;
+      pointer-events:none;
+      opacity:.9;
+    }
+
+    .side-dog.left { left:18px; }
+    .side-dog.right { right:18px; }
+
+    .dog-core {
+      position:absolute;
+      inset:0;
+      border-radius:36px;
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.1);
+      backdrop-filter:blur(10px);
+      box-shadow:
+        0 20px 50px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.12);
+      animation:floatDog 6s ease-in-out infinite;
+    }
+
+    .dog-core::before {
+      content:"🐶";
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:72px;
+      filter:drop-shadow(0 8px 24px rgba(255,91,34,.35));
+    }
+
+    .dog-core::after {
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius:38px;
+      background:linear-gradient(135deg,var(--orange),var(--pink),var(--cyan),var(--purple),var(--orange));
+      background-size:300% 300%;
+      z-index:-1;
+      filter:blur(14px);
+      opacity:.7;
+      animation:rgbMove 5s linear infinite;
+    }
+
+    .dog-dot {
+      position:absolute;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:linear-gradient(135deg,var(--cyan),var(--purple));
+      box-shadow:0 0 20px rgba(50,216,255,.8);
+      animation:floatDot 5s ease-in-out infinite;
+    }
+    .dog-dot.one { top:-10px; left:16px; }
+    .dog-dot.two { bottom:12px; right:-6px; animation-delay:-2s; }
+    .dog-dot.three { top:36px; right:-10px; width:12px; height:12px; animation-delay:-1s; }
 
     .hero {
       position:relative;
-      min-height:430px;
-      padding:64px 6vw 76px;
-      overflow:hidden;
-      color:#fff;
+      z-index:1;
+      padding:34px 6vw 70px;
+      border-bottom:1px solid rgba(255,255,255,.06);
       background:
-        radial-gradient(circle at 18% 18%, rgba(255,42,16,.75), transparent 23%),
-        radial-gradient(circle at 80% 20%, rgba(0,212,255,.45), transparent 27%),
-        radial-gradient(circle at 58% 82%, rgba(109,93,252,.55), transparent 30%),
-        linear-gradient(145deg,#05050a 0%,#11102a 45%,#230a09 100%);
-      isolation:isolate;
+        radial-gradient(circle at 18% 12%, rgba(255,67,28,.3), transparent 24%),
+        radial-gradient(circle at 82% 24%, rgba(50,216,255,.16), transparent 20%),
+        linear-gradient(180deg, rgba(255,255,255,.02), transparent);
     }
 
-    .hero::after {
+    .hero-inner {
+      max-width:1100px;
+      margin:0 auto;
+      text-align:center;
+      position:relative;
+      z-index:2;
+    }
+
+    .brand-cube {
+      position:relative;
+      width:110px;
+      height:110px;
+      margin:0 auto 26px;
+      border-radius:28px;
+      background:linear-gradient(145deg,#341005,#ff5b22 55%, #ffcc4d);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:16px;
+      font-size:11px;
+      line-height:1.2;
+      font-weight:1000;
+      text-transform:uppercase;
+      letter-spacing:1.8px;
+      color:#fff;
+      box-shadow:
+        0 26px 60px rgba(255,91,34,.3),
+        inset 0 1px 0 rgba(255,255,255,.3);
+      transform:perspective(800px) rotateX(12deg) rotateY(-10deg);
+      animation:floatCube 4s ease-in-out infinite;
+    }
+
+    .brand-cube::before {
       content:"";
       position:absolute;
-      inset:-40%;
-      background:conic-gradient(from 90deg, transparent, rgba(255,255,255,.08), transparent, rgba(255,42,16,.12), transparent);
-      animation:spin 18s linear infinite;
-      z-index:-2;
+      inset:-12px;
+      border-radius:34px;
+      background:
+        radial-gradient(circle at 50% 100%, rgba(255,150,40,.95), transparent 52%),
+        radial-gradient(circle at 35% 100%, rgba(255,70,30,.75), transparent 44%),
+        radial-gradient(circle at 65% 100%, rgba(255,215,80,.75), transparent 44%);
+      filter:blur(18px);
+      z-index:-1;
+      animation:firePulse 2.1s ease-in-out infinite;
     }
 
-    .hero-inner { max-width:1180px; margin:0 auto; position:relative; }
-    .eyebrow {
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      color:#ffcf4a;
-      font-size:12px;
-      font-weight:950;
-      letter-spacing:4px;
-      text-transform:uppercase;
-      text-shadow:0 0 18px rgba(255,207,74,.65);
+    .brand-cube::after {
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius:30px;
+      border:1px solid rgba(255,255,255,.18);
+      pointer-events:none;
     }
 
     .hero h1 {
-      font-size:clamp(48px, 7vw, 94px);
-      line-height:.94;
-      max-width:980px;
-      margin:22px 0 18px;
-      letter-spacing:-4px;
+      margin:0;
+      font-size:clamp(46px, 7vw, 86px);
+      line-height:.95;
+      letter-spacing:-2.8px;
       font-weight:1000;
-      text-shadow:0 12px 0 rgba(0,0,0,.2), 0 32px 50px rgba(0,0,0,.45);
-      transform:perspective(900px) rotateX(8deg);
+      color:#fff;
+      text-shadow:0 12px 28px rgba(0,0,0,.38);
     }
 
-    .hero p {
-      max-width:780px;
-      font-size:18px;
-      line-height:1.7;
-      color:rgba(255,255,255,.84);
-      margin:0 0 26px;
+    .stat-wrap {
+      margin-top:24px;
+      display:flex;
+      justify-content:center;
     }
 
     .stat-pill {
       display:inline-flex;
       align-items:center;
       gap:10px;
-      padding:14px 20px;
+      padding:14px 22px;
       border-radius:999px;
-      background:rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.26);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 18px 45px rgba(0,0,0,.28);
-      font-weight:1000;
-      letter-spacing:.8px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:
+        0 12px 32px rgba(0,0,0,.25),
+        inset 0 1px 0 rgba(255,255,255,.12);
+      color:#fff;
+      font-size:14px;
+      font-weight:900;
       text-transform:uppercase;
-      backdrop-filter:blur(14px);
+      letter-spacing:1px;
     }
 
     .stat-pill strong {
       color:#fff;
       font-size:18px;
-      text-shadow:0 0 18px rgba(80,242,143,.55);
+      text-shadow:0 0 18px rgba(255,91,34,.5);
     }
 
-    .hero-buttons { display:flex; flex-wrap:wrap; gap:14px; margin-top:28px; }
+    .hero-buttons {
+      display:flex;
+      justify-content:center;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-top:22px;
+    }
 
     .btn {
       border:0;
+      outline:none;
       cursor:pointer;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:8px;
       min-height:52px;
-      padding:15px 24px;
+      padding:14px 22px;
       border-radius:999px;
-      font-weight:1000;
       text-decoration:none;
-      color:#fff;
-      letter-spacing:-.2px;
-      transition:transform .22s ease, box-shadow .22s ease, filter .22s ease;
-      transform:translateZ(0);
-      font-family:inherit;
+      font-weight:900;
       font-size:15px;
+      font-family:inherit;
+      transition:.2s ease;
+      letter-spacing:-.2px;
     }
 
-    .btn:hover { transform:translateY(-4px) scale(1.02); filter:saturate(1.12); }
+    .btn:hover {
+      transform:translateY(-3px);
+    }
+
     .btn.primary {
-      background:linear-gradient(135deg,var(--orange),var(--pink));
-      box-shadow:0 18px 35px rgba(255,42,16,.34), inset 0 1px 0 rgba(255,255,255,.3);
+      color:#fff;
+      background:linear-gradient(135deg,var(--orange),var(--red),var(--pink));
+      box-shadow:0 14px 28px rgba(255,91,34,.28);
     }
+
     .btn.secondary {
-      color:#1d1007;
-      background:linear-gradient(135deg,#fff,#fff2e5);
-      border:1px solid rgba(255,91,42,.25);
-      box-shadow:0 12px 25px rgba(54,18,7,.12), inset 0 1px 0 #fff;
-    }
-    .btn.dark {
-      background:linear-gradient(135deg,#1a0e05,#392010);
-      box-shadow:0 18px 38px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.12);
+      color:#fff;
+      background:linear-gradient(135deg,#1c1e28,#2a2d39);
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow:0 10px 24px rgba(0,0,0,.2);
     }
 
-    .float-shape {
-      position:absolute;
-      border-radius:34px;
-      filter:blur(.1px);
-      opacity:.92;
-      transform-style:preserve-3d;
-      animation:floaty 7s ease-in-out infinite;
-      box-shadow:0 40px 80px rgba(0,0,0,.34), inset 0 2px 1px rgba(255,255,255,.35);
+    .main {
+      position:relative;
+      z-index:1;
+      max-width:1200px;
+      margin:-28px auto 70px;
+      padding:0 22px;
     }
-    .shape-1 { width:150px;height:150px;right:9%;top:72px;background:linear-gradient(135deg,#ff2a10,#ffcf4a);transform:rotate(18deg); }
-    .shape-2 { width:112px;height:112px;right:24%;bottom:70px;background:linear-gradient(135deg,#00d4ff,#6d5dfc);border-radius:50%;animation-delay:-2s; }
-    .shape-3 { width:90px;height:90px;left:4%;bottom:42px;background:linear-gradient(135deg,#50f28f,#00d4ff);transform:rotate(-22deg);animation-delay:-4s; }
-
-    .main { max-width:1280px; margin:-38px auto 80px; padding:0 5vw; position:relative; }
 
     .generator {
       position:relative;
-      padding:30px;
-      border:1px solid rgba(255,91,42,.24);
-      border-radius:var(--radius);
-      background:rgba(255,255,255,.74);
-      backdrop-filter:blur(18px);
-      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.9);
       overflow:hidden;
-      transform:perspective(1100px) rotateX(1deg);
+      border-radius:28px;
+      padding:28px;
+      background:linear-gradient(180deg, rgba(20,22,30,.92), rgba(14,16,24,.92));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:var(--shadow);
+      margin-bottom:42px;
     }
+
     .generator::before {
       content:"";
       position:absolute;
-      inset:0;
-      background:linear-gradient(90deg, rgba(255,42,16,.08), transparent, rgba(0,212,255,.1));
+      inset:-1px;
+      border-radius:28px;
+      padding:1px;
+      background:linear-gradient(135deg,var(--orange),var(--pink),var(--cyan),var(--purple),var(--orange));
+      background-size:300% 300%;
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      animation:rgbMove 7s linear infinite;
       pointer-events:none;
+      opacity:.95;
     }
-    .generator h2 { margin:0 0 8px; font-size:32px; letter-spacing:-1.2px; }
-    .generator p { color:var(--muted); margin:0 0 24px; font-size:17px; line-height:1.6; }
 
-    .form-row { display:grid; grid-template-columns:minmax(160px, 1fr) minmax(220px, 1fr) auto; gap:16px; align-items:end; position:relative; }
-    label { display:block; color:#160d07; font-size:12px; font-weight:1000; text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
-    input, select {
+    .generator h2 {
+      margin:0 0 8px;
+      font-size:38px;
+      letter-spacing:-1px;
+      color:#fff;
+    }
+
+    .generator p {
+      margin:0 0 22px;
+      color:var(--muted);
+      line-height:1.65;
+      font-size:16px;
+      max-width:860px;
+    }
+
+    .form-row {
+      display:grid;
+      grid-template-columns:1fr 1fr auto;
+      gap:14px;
+      align-items:end;
+    }
+
+    label {
+      display:block;
+      margin-bottom:8px;
+      color:#fff;
+      font-size:12px;
+      font-weight:1000;
+      text-transform:uppercase;
+      letter-spacing:2px;
+    }
+
+    input {
       width:100%;
-      height:58px;
+      height:56px;
       border-radius:18px;
-      border:1px solid rgba(255,91,42,.28);
-      background:rgba(255,247,239,.8);
-      color:#1b1210;
+      border:1px solid rgba(255,255,255,.12);
+      background:#0f1118;
+      color:#fff;
       padding:0 16px;
       font:inherit;
-      font-size:17px;
-      outline:none;
-      box-shadow:inset 0 1px 0 #fff;
+      font-size:16px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
     }
-    input:focus, select:focus { border-color:var(--orange); box-shadow:0 0 0 4px rgba(255,42,16,.12); }
 
-    .date-section { margin-top:48px; }
-    .date-head { display:flex; align-items:end; justify-content:space-between; gap:18px; margin-bottom:20px; }
-    .date-head h2 { font-size:34px; margin:0; letter-spacing:-1px; }
-    .date-head span { color:var(--orange); font-weight:1000; letter-spacing:1px; text-transform:uppercase; }
+    input:focus {
+      outline:none;
+      border-color:rgba(255,91,34,.7);
+      box-shadow:0 0 0 3px rgba(255,91,34,.12);
+    }
 
-    .draft-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:22px; }
+    .date-section {
+      margin-top:18px;
+    }
+
+    .date-head {
+      display:flex;
+      align-items:end;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:20px;
+    }
+
+    .date-head h2 {
+      margin:0;
+      font-size:44px;
+      letter-spacing:-1.4px;
+      color:#fff;
+    }
+
+    .date-head span {
+      color:#ff6940;
+      font-weight:1000;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-size:14px;
+    }
+
+    .draft-grid {
+      display:grid;
+      grid-template-columns:1fr;
+      gap:24px;
+    }
+
     .draft-card {
       position:relative;
-      border-radius:26px;
-      padding:24px;
-      min-height:420px;
-      border:1px solid rgba(255,91,42,.24);
-      background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(255,245,235,.86));
-      box-shadow:0 24px 55px rgba(44,16,6,.13), inset 0 1px 0 rgba(255,255,255,.9);
-      overflow:hidden;
-      animation:rise .62s ease both;
+      border-radius:28px;
+      padding:1px;
+      background:linear-gradient(135deg,var(--orange),var(--pink),var(--cyan),var(--purple),var(--orange));
+      background-size:300% 300%;
+      box-shadow:0 16px 40px rgba(0,0,0,.25);
+      animation:rgbMove 7s linear infinite, rise .45s ease both;
       animation-delay:var(--delay);
-      transform-style:preserve-3d;
+      overflow:hidden;
     }
-    .draft-card::before {
+
+    .rgb-border {
+      display:none;
+    }
+
+    .card-inner {
+      position:relative;
+      border-radius:27px;
+      padding:24px;
+      background:linear-gradient(180deg,#12141c 0%, #151924 100%);
+      min-height:100%;
+    }
+
+    .card-inner::before {
       content:"";
       position:absolute;
-      width:220px;height:220px;
-      right:-95px;top:-95px;
-      border-radius:50%;
-      background:radial-gradient(circle,var(--orange2),transparent 65%);
-      opacity:.16;
-    }
-    .draft-card:hover { transform:translateY(-8px) rotateX(2deg) rotateY(-2deg); box-shadow:0 34px 75px rgba(44,16,6,.2); }
-    .shine {
-      position:absolute;
       inset:0;
-      background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,.5) 42%, transparent 58%);
-      transform:translateX(-120%);
-      transition:transform .7s ease;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(255,91,34,.12), transparent 28%),
+        radial-gradient(circle at 0% 100%, rgba(50,216,255,.08), transparent 22%);
       pointer-events:none;
     }
-    .draft-card:hover .shine { transform:translateX(120%); }
-    .card-topline { color:var(--orange); font-size:11px; font-weight:1000; letter-spacing:3px; text-transform:uppercase; margin-bottom:14px; }
-    .draft-card h3 { font-size:28px; line-height:1.08; margin:0 0 10px; letter-spacing:-.8px; }
-    .excerpt { color:#45373a; line-height:1.55; margin:0 0 20px; }
-    .field-grid { display:grid; gap:10px; margin:18px 0 22px; }
-    .field {
-      border:1px solid rgba(255,91,42,.18);
-      border-radius:16px;
-      padding:12px;
-      background:rgba(255,247,239,.76);
+
+    .card-topline {
+      position:relative;
+      z-index:1;
+      color:#ff6a3e;
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      margin-bottom:14px;
     }
-    .field span { display:block; color:#1d1007; font-size:10px; font-weight:1000; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
-    .field p { margin:0; color:#5c4d51; font-size:13px; line-height:1.45; }
-    .card-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:auto; }
+
+    .draft-card h3 {
+      position:relative;
+      z-index:1;
+      margin:0 0 12px;
+      font-size:clamp(28px, 4vw, 46px);
+      line-height:1.12;
+      letter-spacing:-.8px;
+      color:#fff;
+    }
+
+    .excerpt {
+      position:relative;
+      z-index:1;
+      color:#d0d6e2;
+      line-height:1.7;
+      font-size:16px;
+      margin:0 0 20px;
+      max-width:1000px;
+    }
+
+    .field-grid {
+      position:relative;
+      z-index:1;
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      margin-bottom:22px;
+    }
+
+    .field {
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:18px;
+      padding:14px 14px 12px;
+      background:rgba(255,255,255,.03);
+    }
+
+    .field span {
+      display:block;
+      color:#fff;
+      font-size:11px;
+      font-weight:1000;
+      text-transform:uppercase;
+      letter-spacing:2px;
+      margin-bottom:7px;
+    }
+
+    .field p {
+      margin:0;
+      color:#d7dce6;
+      font-size:15px;
+      line-height:1.6;
+      word-break:break-word;
+    }
+
+    .card-actions {
+      position:relative;
+      z-index:1;
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:8px;
+    }
 
     .empty-state {
-      margin-top:48px;
-      min-height:300px;
-      display:grid;
-      place-items:center;
-      text-align:center;
-      border:1px dashed rgba(255,91,42,.35);
-      border-radius:var(--radius);
-      background:rgba(255,255,255,.58);
-      box-shadow:var(--shadow);
-      padding:40px;
       position:relative;
+      margin-top:34px;
+      padding:56px 24px;
+      text-align:center;
+      border-radius:28px;
+      background:linear-gradient(180deg,#12141c,#171b27);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:var(--shadow);
       overflow:hidden;
     }
-    .empty-state h2 { font-size:36px; margin:0 0 10px; }
-    .empty-state p { color:var(--muted); margin:0; }
-    .orb.small { position:absolute;width:160px;height:160px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));opacity:.25;filter:blur(2px);right:10%;top:20%;animation:floaty 8s ease-in-out infinite; }
+
+    .empty-ring {
+      width:130px;
+      height:130px;
+      margin:0 auto 24px;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.14);
+      box-shadow:0 0 28px rgba(255,91,34,.22);
+      position:relative;
+    }
+
+    .empty-ring::before {
+      content:"🐾";
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:48px;
+    }
+
+    .empty-state h2 {
+      margin:0 0 10px;
+      font-size:34px;
+      color:#fff;
+    }
+
+    .empty-state p {
+      margin:0;
+      color:#c7cfde;
+      font-size:16px;
+      line-height:1.6;
+    }
 
     .toast {
       position:fixed;
-      left:50%;bottom:24px;
-      transform:translateX(-50%) translateY(30px);
-      background:#100805;
-      color:#fff;
-      padding:14px 18px;
-      border-radius:999px;
-      box-shadow:0 18px 50px rgba(0,0,0,.28);
-      font-weight:900;
+      left:50%;
+      bottom:24px;
+      transform:translateX(-50%) translateY(24px);
       opacity:0;
       pointer-events:none;
-      transition:.25s ease;
-      z-index:20;
+      background:#12141c;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.1);
+      padding:14px 18px;
+      border-radius:999px;
+      box-shadow:0 16px 36px rgba(0,0,0,.28);
+      font-weight:900;
+      transition:.24s ease;
+      z-index:30;
     }
-    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-    @keyframes spin { to { transform:rotate(360deg); } }
-    @keyframes floaty { 0%,100% { transform:translate3d(0,0,0) rotate(0deg); } 50% { transform:translate3d(0,-22px,40px) rotate(8deg); } }
-    @keyframes rise { from { opacity:0; transform:translateY(28px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+    .toast.show {
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    @keyframes rgbMove {
+      0% { background-position:0% 50%; }
+      50% { background-position:100% 50%; }
+      100% { background-position:0% 50%; }
+    }
+
+    @keyframes firePulse {
+      0%,100% { transform:scale(1); opacity:.9; }
+      50% { transform:scale(1.08); opacity:1; }
+    }
+
+    @keyframes floatCube {
+      0%,100% { transform:perspective(800px) rotateX(12deg) rotateY(-10deg) translateY(0); }
+      50% { transform:perspective(800px) rotateX(12deg) rotateY(-10deg) translateY(-8px); }
+    }
+
+    @keyframes floatDog {
+      0%,100% { transform:translateY(0) rotate(-2deg); }
+      50% { transform:translateY(-12px) rotate(2deg); }
+    }
+
+    @keyframes floatDot {
+      0%,100% { transform:translateY(0); }
+      50% { transform:translateY(-10px); }
+    }
+
+    @keyframes rise {
+      from { opacity:0; transform:translateY(18px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    @media (max-width:1200px) {
+      .side-dog { display:none; }
+    }
 
     @media (max-width:900px) {
-      .hero { padding:44px 22px 78px; }
-      .hero h1 { letter-spacing:-2px; }
-      .shape-1,.shape-2,.shape-3 { opacity:.28; }
-      .main { padding:0 18px; }
-      .form-row { grid-template-columns:1fr; }
-      .btn { width:100%; }
-      .date-head { align-items:flex-start; flex-direction:column; }
+      .hero {
+        padding:28px 18px 58px;
+      }
+
+      .main {
+        padding:0 14px;
+      }
+
+      .form-row {
+        grid-template-columns:1fr;
+      }
+
+      .btn {
+        width:100%;
+      }
+
+      .date-head {
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .date-head h2 {
+        font-size:34px;
+      }
+
+      .draft-card h3 {
+        font-size:32px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="page">
+
+    <div class="side-dog left">
+      <div class="dog-core"></div>
+      <div class="dog-dot one"></div>
+      <div class="dog-dot two"></div>
+      <div class="dog-dot three"></div>
+    </div>
+
+    <div class="side-dog right">
+      <div class="dog-core"></div>
+      <div class="dog-dot one"></div>
+      <div class="dog-dot two"></div>
+      <div class="dog-dot three"></div>
+    </div>
+
     <header class="hero">
-      <div class="float-shape shape-1"></div>
-      <div class="float-shape shape-2"></div>
-      <div class="float-shape shape-3"></div>
-
       <div class="hero-inner">
-        <div class="eyebrow">Brutus & Barnaby Blog AI Agent</div>
-        <h1>AI Blog Draft Studio</h1>
-        <p>Generate colorful, SEO-ready dog blog drafts, review each article, and copy the final HTML from inside the draft page.</p>
+        <div class="brand-cube">Brutus<br>&amp;<br>Barnaby</div>
+        <h1>AI BLOG GENERATOR</h1>
 
-        <div class="stat-pill">Total Blogs Generated: <strong>1</strong></div>
+        <div class="stat-wrap">
+          <div class="stat-pill">Total Blogs Generated: <strong>1</strong></div>
+        </div>
 
         <div class="hero-buttons">
           <a class="btn primary" href="#generate">Generate Blogs</a>
-          <a class="btn dark" href="#drafts">View Drafts</a>
+          <a class="btn secondary" href="#drafts">View Drafts</a>
         </div>
       </div>
     </header>
@@ -346,7 +663,7 @@
         <form class="form-row" onsubmit="startGeneration(event)">
           <div>
             <label for="blogsCount">How many blogs?</label>
-            <input id="blogsCount" type="number" min="1" max="20" value="20" required>
+            <input id="blogsCount" type="number" min="1" max="20" value="1" required>
           </div>
           <div>
             <label for="agentPin">PIN, optional</label>
@@ -360,25 +677,27 @@
         <section class="date-section" id="drafts">
           <div class="date-head">
             <h2>2026-06-30</h2>
-            <span>1 draft(s)</span>
+            <span>1 Draft(s)</span>
           </div>
           <div class="draft-grid">
-            <article class="draft-card tilt-card" style="--delay:0ms;">
-              <div class="shine"></div>
-              <div class="card-topline">rawhide alternatives • 2026-06-30</div>
-              <h3>Beef Cheek Rolls vs. Rawhide: Why Beef Cheeks Are the Safer Choice for Your Dog</h3>
-              <p class="excerpt">Curious about beef cheek rolls vs rawhide? Discover why beef cheek rolls are the highly digestible, safe, and long-lasting alternative your dog deserves.</p>
+            <article class="draft-card" style="--delay:0ms;">
+              <div class="rgb-border"></div>
+              <div class="card-inner">
+                <div class="card-topline">rawhide alternatives • 2026-06-30</div>
+                <h3>Beef Cheek Rolls vs. Rawhide: Why Beef Cheeks Are the Safer Choice for Your Dog</h3>
+                <p class="excerpt">Curious about beef cheek rolls vs rawhide? Discover why beef cheek rolls are the highly digestible, safe, and long-lasting alternative your dog deserves.</p>
 
-              <div class="field-grid">
-                <div class="field"><span>Page Title</span><p>Beef Cheek Rolls vs. Rawhide: Which is Safer for Dogs?</p></div>
-                <div class="field"><span>Meta Description</span><p>Compare beef cheek rolls vs rawhide. Learn why beef cheeks are the safe, digestible, and long-lasting chew your dog needs. Shop Brutus &amp; Barnaby today!</p></div>
-                <div class="field"><span>URL Handle</span><p>beef-cheek-rolls-vs-rawhide-safer-choice</p></div>
-                <div class="field"><span>SEO Keywords</span><p>beef cheek rolls vs rawhide, beef cheek rolls for dogs, safe rawhide alternatives, are beef cheeks safe for dogs, digestible dog chews, long lasting dog chews, natural dog treats, healthy dog chews, beef cheek rolls benefits, rawhide free dog treats</p></div>
-              </div>
+                <div class="field-grid">
+                  <div class="field"><span>Page Title</span><p>Beef Cheek Rolls vs. Rawhide: Which is Safer for Dogs?</p></div>
+                  <div class="field"><span>Meta Description</span><p>Compare beef cheek rolls vs rawhide. Learn why beef cheeks are the safe, digestible, and long-lasting chew your dog needs. Shop Brutus &amp; Barnaby today!</p></div>
+                  <div class="field"><span>URL Handle</span><p>beef-cheek-rolls-vs-rawhide-safer-choice</p></div>
+                  <div class="field"><span>SEO Keywords</span><p>beef cheek rolls vs rawhide, beef cheek rolls for dogs, safe rawhide alternatives, are beef cheeks safe for dogs, digestible dog chews, long lasting dog chews, natural dog treats, healthy dog chews, beef cheek rolls benefits, rawhide free dog treats</p></div>
+                </div>
 
-              <div class="card-actions">
-                <a class="btn primary" href="blogs/2026-06-30-beef-cheek-rolls-vs-rawhide-safer-choice.html">Open Draft</a>
-                <button class="btn secondary" type="button" onclick="copySeo(this)" data-seo="{&quot;Blog Title&quot;: &quot;Beef Cheek Rolls vs. Rawhide: Why Beef Cheeks Are the Safer Choice for Your Dog&quot;, &quot;Excerpt&quot;: &quot;Curious about beef cheek rolls vs rawhide? Discover why beef cheek rolls are the highly digestible, safe, and long-lasting alternative your dog deserves.&quot;, &quot;Page Title&quot;: &quot;Beef Cheek Rolls vs. Rawhide: Which is Safer for Dogs?&quot;, &quot;Meta Description&quot;: &quot;Compare beef cheek rolls vs rawhide. Learn why beef cheeks are the safe, digestible, and long-lasting chew your dog needs. Shop Brutus &amp; Barnaby today!&quot;, &quot;URL Handle&quot;: &quot;beef-cheek-rolls-vs-rawhide-safer-choice&quot;, &quot;SEO Keywords&quot;: &quot;beef cheek rolls vs rawhide, beef cheek rolls for dogs, safe rawhide alternatives, are beef cheeks safe for dogs, digestible dog chews, long lasting dog chews, natural dog treats, healthy dog chews, beef cheek rolls benefits, rawhide free dog treats&quot;, &quot;Product Focus&quot;: &quot;Beef Cheek Rolls&quot;}">Copy SEO</button>
+                <div class="card-actions">
+                  <a class="btn primary" href="blogs/2026-06-30-beef-cheek-rolls-vs-rawhide-safer-choice.html">Open Draft</a>
+                  <button class="btn secondary" type="button" onclick="copySeo(this)" data-seo="{&quot;Blog Title&quot;: &quot;Beef Cheek Rolls vs. Rawhide: Why Beef Cheeks Are the Safer Choice for Your Dog&quot;, &quot;Excerpt&quot;: &quot;Curious about beef cheek rolls vs rawhide? Discover why beef cheek rolls are the highly digestible, safe, and long-lasting alternative your dog deserves.&quot;, &quot;Page Title&quot;: &quot;Beef Cheek Rolls vs. Rawhide: Which is Safer for Dogs?&quot;, &quot;Meta Description&quot;: &quot;Compare beef cheek rolls vs rawhide. Learn why beef cheeks are the safe, digestible, and long-lasting chew your dog needs. Shop Brutus &amp; Barnaby today!&quot;, &quot;URL Handle&quot;: &quot;beef-cheek-rolls-vs-rawhide-safer-choice&quot;, &quot;SEO Keywords&quot;: &quot;beef cheek rolls vs rawhide, beef cheek rolls for dogs, safe rawhide alternatives, are beef cheeks safe for dogs, digestible dog chews, long lasting dog chews, natural dog treats, healthy dog chews, beef cheek rolls benefits, rawhide free dog treats&quot;}">Copy SEO</button>
+                </div>
               </div>
             </article>
             </div>
@@ -404,7 +723,7 @@
     async function startGeneration(event) {
       event.preventDefault();
       const btn = document.getElementById('generateBtn');
-      const count = Math.min(Math.max(parseInt(document.getElementById('blogsCount').value || '20', 10), 1), 20);
+      const count = Math.min(Math.max(parseInt(document.getElementById('blogsCount').value || '1', 10), 1), 20);
       const pin = document.getElementById('agentPin').value || '';
       btn.disabled = true;
       const oldText = btn.textContent;
