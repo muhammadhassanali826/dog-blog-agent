@@ -14,6 +14,10 @@ on:
         description: "Generate fake test blogs without Gemini API? true/false"
         required: false
         default: "false"
+      clear_previous:
+        description: "Clear old generated dashboard drafts before saving new ones? true/false"
+        required: false
+        default: "true"
 
 permissions:
   contents: write
@@ -37,6 +41,7 @@ jobs:
       GEMINI_MODEL: gemini-3.5-flash
       BLOGS_PER_DAY: ${{ github.event.inputs.blogs_per_day || '20' }}
       DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+      CLEAR_PREVIOUS: ${{ github.event.inputs.clear_previous || 'true' }}
       SLEEP_SECONDS_BETWEEN_CALLS: "6"
       MAX_RETRIES: "3"
       # Optional: after you deploy the Cloudflare Worker, add repo variable TRIGGER_WORKER_URL.
