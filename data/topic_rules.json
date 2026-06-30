@@ -1,0 +1,25 @@
+{
+  "brand": "Brutus & Barnaby",
+  "goal": "Generate fresh SEO blog topics automatically for a dog treats and chews brand.",
+  "daily_categories": [
+    "dog chewing safety",
+    "puppy treats and chews",
+    "senior dog treats",
+    "dog boredom and enrichment",
+    "rawhide alternatives",
+    "dog treat nutrition",
+    "training treats",
+    "dental chews",
+    "sensitive stomach treats",
+    "power chewer guides",
+    "can dogs eat topics",
+    "dog treat routines"
+  ],
+  "avoid_topics_about": [
+    "medical diagnosis",
+    "guaranteed health cures",
+    "unsafe feeding advice",
+    "recommending treats as treatment for disease",
+    "making claims that chews cure dental disease"
+  ]
+}
