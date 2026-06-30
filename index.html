@@ -14,6 +14,7 @@
       --border: #f3d2c2;
       --text: #1a1208;
       --muted: #6b5d52;
+      --success: #0f7b30;
     }
     * { box-sizing: border-box; }
     body {
@@ -47,7 +48,7 @@
     .generator-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap:14px; align-items:end; }
     label { font-size:12px; font-weight:900; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:7px; }
     input, select { width:100%; border:1px solid #ffd7c4; background:#fff8f3; border-radius:12px; padding:13px 12px; font:inherit; }
-    .hint { margin-top:12px; padding:12px 14px; border-radius:12px; background:#fff4ee; border:1px solid #ffd7c4; color:#5c3628; font-size:14px; line-height:1.55; }
+    .hint { display:none; margin-top:12px; padding:12px 14px; border-radius:12px; background:#fff4ee; border:1px solid #ffd7c4; color:#5c3628; font-size:14px; line-height:1.55; }
     .date-heading { margin: 30px 0 16px; font-size: 22px; display: flex; align-items: center; gap: 10px; }
     .date-heading span { color: var(--orange); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
@@ -80,7 +81,7 @@
     <h1>Generated Blog Drafts</h1>
     <p>Generate draft blogs from this dashboard, review SEO details, open each draft, and copy the full blog HTML. GitHub-only. No Shopify auto-publishing.</p>
     <div class="stats">
-      <div class="stat">Total Drafts: 9</div>
+      <div class="stat">Total Drafts: 1</div>
       <div class="stat">GitHub Only</div>
       <div class="stat">No Shopify Publishing</div>
       <div class="stat">Website Trigger: Connected</div>
@@ -93,7 +94,7 @@
   <main>
     <section class="generator-panel" id="generate">
       <h2>Generate New Blogs</h2>
-      <p>Choose how many drafts to generate and whether to use AI. “Test only” creates sample blogs without Gemini credits. “Use AI” uses your Gemini key stored in GitHub Secrets.</p>
+      <p>Choose how many new drafts to generate. Each new run clears the old dashboard drafts first, so the page only shows the latest batch.</p>
       <form id="generateForm" class="generator-grid">
         <div>
           <label for="blogCount">How many blogs?</label>
@@ -114,171 +115,27 @@
           <button class="button" type="submit">Generate Blog Drafts</button>
         </div>
       </form>
-      <div class="hint" id="triggerStatus">If the button is not connected yet, it will open GitHub Actions where you can click Run workflow manually.</div>
+      <div class="hint" id="triggerStatus"></div>
     </section>
 
     
             <section class="date-section" id="drafts">
-              <h2 class="date-heading">2026-06-30 <span>9 draft(s)</span></h2>
+              <h2 class="date-heading">2026-06-30 <span>1 draft(s)</span></h2>
               <div class="cards">
       <article class="blog-card">
-        <div class="card-topline">dog chew safety · 2026-06-30</div>
-        <h2>How Long Should a Dog Chew a Bully Stick?</h2>
-        <p class="excerpt">A helpful dog guide about how long should a dog chew a bully stick?.</p>
+        <div class="card-topline">puppy training · 2026-06-30</div>
+        <h2>Best Puppy Training Treats: A Guide to Rewarding Good Behavior</h2>
+        <p class="excerpt">Looking for the best puppy training treats to speed up obedience training? Discover how to choose healthy, high-value rewards that keep your puppy focused and motivated.</p>
         <div class="meta-grid">
-          <div><strong>Page Title</strong><span>How Long Should a Dog Chew a Bully Stick?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about how long should a dog chew a bully stick? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>how-long-should-a-dog-chew-a-bully-stick</span></div>
-          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>how long should dog chew bully stick, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-how-long-should-a-dog-chew-a-bully-stick-2.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "How Long Should a Dog Chew a Bully Stick?", "excerpt": "A helpful dog guide about how long should a dog chew a bully stick?.", "page_title": "How Long Should a Dog Chew a Bully Stick?", "meta_description": "Learn about how long should a dog chew a bully stick? and how to build a smarter dog treat routine.", "url_handle": "how-long-should-a-dog-chew-a-bully-stick", "seo_keywords": "how long should dog chew bully stick, dog treats, natural dog chews", "html_file": "blogs/2026-06-30-how-long-should-a-dog-chew-a-bully-stick-2.html"})'>Copy SEO</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog chews · 2026-06-30</div>
-        <h2>Best Rawhide Alternatives for Dogs: Safe, Healthy, &amp; Digestible Chews</h2>
-        <p class="excerpt">Looking for safe, digestible rawhide alternatives for dogs? Discover why natural, single-ingredient chews like Bully Sticks are the perfect choice for your pup.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>7 Best Rawhide Alternatives for Dogs: Healthy &amp; Safe Chews</span></div>
-          <div><strong>Meta Description</strong><span>Discover the best rawhide alternatives for dogs. Keep your pet safe and busy with fully digestible, natural chews like Bully Sticks, Cow Ears, and Pig Ears.</span></div>
-          <div><strong>URL Handle</strong><span>best-rawhide-alternatives-for-dogs</span></div>
-          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>rawhide alternatives for dogs, safe dog chews, natural rawhide alternatives, bully sticks for dogs, healthy dog treats, digestible dog chews, long lasting dog chews, cow ears for dogs, pig ears for dogs, dog chew treats, non toxic dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-rawhide-alternatives-for-dogs-2.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Best Rawhide Alternatives for Dogs: Safe, Healthy, & Digestible Chews", "excerpt": "Looking for safe, digestible rawhide alternatives for dogs? Discover why natural, single-ingredient chews like Bully Sticks are the perfect choice for your pup.", "page_title": "7 Best Rawhide Alternatives for Dogs: Healthy & Safe Chews", "meta_description": "Discover the best rawhide alternatives for dogs. Keep your pet safe and busy with fully digestible, natural chews like Bully Sticks, Cow Ears, and Pig Ears.", "url_handle": "best-rawhide-alternatives-for-dogs", "seo_keywords": "rawhide alternatives for dogs, safe dog chews, natural rawhide alternatives, bully sticks for dogs, healthy dog treats, digestible dog chews, long lasting dog chews, cow ears for dogs, pig ears for dogs, dog chew treats, non toxic dog chews", "html_file": "blogs/2026-06-30-best-rawhide-alternatives-for-dogs-2.html"})'>Copy SEO</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog chews · 2026-06-30</div>
-        <h2>Are Pig Ears Safe for Dogs?</h2>
-        <p class="excerpt">A helpful dog guide about are pig ears safe for dogs?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Are Pig Ears Safe for Dogs?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about are pig ears safe for dogs? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>are-pig-ears-safe-for-dogs</span></div>
-          <div><strong>Product Focus</strong><span>Pig Ears</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>are pig ears safe for dogs, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-are-pig-ears-safe-for-dogs-2.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Are Pig Ears Safe for Dogs?", "excerpt": "A helpful dog guide about are pig ears safe for dogs?.", "page_title": "Are Pig Ears Safe for Dogs?", "meta_description": "Learn about are pig ears safe for dogs? and how to build a smarter dog treat routine.", "url_handle": "are-pig-ears-safe-for-dogs", "seo_keywords": "are pig ears safe for dogs, dog treats, natural dog chews", "html_file": "blogs/2026-06-30-are-pig-ears-safe-for-dogs-2.html"})'>Copy SEO</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">chew comparison · 2026-06-30</div>
-        <h2>Cow Ears vs Pig Ears for Dogs: Which Is the Best Chew?</h2>
-        <p class="excerpt">Deciding between cow ears vs pig ears for your dog? Discover the key differences in fat content, durability, and digestibility to find the perfect natural chew.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Cow Ears vs Pig Ears for Dogs: Which Natural Chew is Best?</span></div>
-          <div><strong>Meta Description</strong><span>Comparing cow ears vs pig ears for dogs? Learn about fat content, digestibility, and safety to choose the best natural, rawhide-free chew for your pup.</span></div>
-          <div><strong>URL Handle</strong><span>cow-ears-vs-pig-ears-for-dogs</span></div>
-          <div><strong>Product Focus</strong><span>Cow Ears</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>cow ears vs pig ears, cow ears for dogs, pig ears for dogs, natural dog chews, rawhide alternative, low fat dog chews, healthy dog treats, best chews for dogs, digestible dog chews, brutus and barnaby cow ears</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-cow-ears-vs-pig-ears-for-dogs-2.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Cow Ears vs Pig Ears for Dogs: Which Is the Best Chew?", "excerpt": "Deciding between cow ears vs pig ears for your dog? Discover the key differences in fat content, durability, and digestibility to find the perfect natural chew.", "page_title": "Cow Ears vs Pig Ears for Dogs: Which Natural Chew is Best?", "meta_description": "Comparing cow ears vs pig ears for dogs? Learn about fat content, digestibility, and safety to choose the best natural, rawhide-free chew for your pup.", "url_handle": "cow-ears-vs-pig-ears-for-dogs", "seo_keywords": "cow ears vs pig ears, cow ears for dogs, pig ears for dogs, natural dog chews, rawhide alternative, low fat dog chews, healthy dog treats, best chews for dogs, digestible dog chews, brutus and barnaby cow ears", "html_file": "blogs/2026-06-30-cow-ears-vs-pig-ears-for-dogs-2.html"})'>Copy SEO</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog behavior · 2026-06-30</div>
-        <h2>How to Stop Dogs Begging for Food: A Complete Training Guide</h2>
-        <p class="excerpt">Tired of those guilt-inducing puppy dog eyes at every meal? Learn how to stop your dog begging for food using positive reinforcement, smart boundaries, and high-quality training treats.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>How to Stop Dogs Begging for Food | Brutus &amp; Barnaby</span></div>
-          <div><strong>Meta Description</strong><span>Discover effective, positive reinforcement strategies to stop your dog begging for food. Learn how to set boundaries and reward calm behavior during meals.</span></div>
-          <div><strong>URL Handle</strong><span>how-to-stop-dogs-begging-for-food</span></div>
+          <div><strong>Page Title</strong><span>Best Puppy Training Treats: Healthy Rewards Guide</span></div>
+          <div><strong>Meta Description</strong><span>Discover the best puppy training treats for quick learning and focus. Learn how to choose low-calorie, high-value rewards for your new pup.</span></div>
+          <div><strong>URL Handle</strong><span>best-puppy-training-treats</span></div>
           <div><strong>Product Focus</strong><span>Training Treats</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>dog begging for food, how to stop dog begging, dog training treats, positive reinforcement dog training, dog behavior tips, stop begging behavior, healthy dog treats, puppy begging table food, crate training dog during meals, natural dog treats</span></div>
+          <div class="full"><strong>SEO Keywords</strong><span>puppy training treats, best puppy training treats, healthy puppy treats, high-value training treats, natural puppy treats, potty training treats, puppy training tips, soft puppy treats, Brutus and Barnaby training treats</span></div>
         </div>
         <div class="actions">
-          <a class="button" href="blogs/2026-06-30-how-to-stop-dogs-begging-for-food-2.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "How to Stop Dogs Begging for Food: A Complete Training Guide", "excerpt": "Tired of those guilt-inducing puppy dog eyes at every meal? Learn how to stop your dog begging for food using positive reinforcement, smart boundaries, and high-quality training treats.", "page_title": "How to Stop Dogs Begging for Food | Brutus & Barnaby", "meta_description": "Discover effective, positive reinforcement strategies to stop your dog begging for food. Learn how to set boundaries and reward calm behavior during meals.", "url_handle": "how-to-stop-dogs-begging-for-food", "seo_keywords": "dog begging for food, how to stop dog begging, dog training treats, positive reinforcement dog training, dog behavior tips, stop begging behavior, healthy dog treats, puppy begging table food, crate training dog during meals, natural dog treats", "html_file": "blogs/2026-06-30-how-to-stop-dogs-begging-for-food-2.html"})'>Copy SEO</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog nutrition · 2026-06-30</div>
-        <h2>Can Dogs Eat Sweet Potatoes?</h2>
-        <p class="excerpt">A helpful dog guide about can dogs eat sweet potatoes?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Can Dogs Eat Sweet Potatoes?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about can dogs eat sweet potatoes? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>can-dogs-eat-sweet-potatoes</span></div>
-          <div><strong>Product Focus</strong><span>Sweet Potato Treats</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>can dogs eat sweet potatoes, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-can-dogs-eat-sweet-potatoes-2.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Can Dogs Eat Sweet Potatoes?", "excerpt": "A helpful dog guide about can dogs eat sweet potatoes?.", "page_title": "Can Dogs Eat Sweet Potatoes?", "meta_description": "Learn about can dogs eat sweet potatoes? and how to build a smarter dog treat routine.", "url_handle": "can-dogs-eat-sweet-potatoes", "seo_keywords": "can dogs eat sweet potatoes, dog treats, natural dog chews", "html_file": "blogs/2026-06-30-can-dogs-eat-sweet-potatoes-2.html"})'>Copy SEO</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">enrichment · 2026-06-30</div>
-        <h2>Best Dog Chews for Bored Dogs: Ultimate Natural Enrichment Guide</h2>
-        <p class="excerpt">Keep your dog mentally stimulated and prevent destructive behaviors. Discover the best natural dog chews for boredom, featuring low-fat cow ears and long-lasting treats.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Best Dog Chews for Bored Dogs | Brutus &amp; Barnaby</span></div>
-          <div><strong>Meta Description</strong><span>Keep your dog busy and happy with the best natural dog chews for boredom. Discover why digestible, rawhide-free cow ears and beef cheek rolls are perfect for mental enrichment.</span></div>
-          <div><strong>URL Handle</strong><span>best-dog-chews-for-bored-dogs</span></div>
-          <div><strong>Product Focus</strong><span>Cow Ears</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>dog chews for boredom, best dog chews for bored dogs, cow ears for dogs, natural dog chews, dog enrichment chews, rawhide free dog chews, long lasting dog chews, bully sticks for dogs, beef cheek rolls, healthy dog treats, prevent dog destructive chewing</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-best-dog-chews-for-bored-dogs-2.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Best Dog Chews for Bored Dogs: Ultimate Natural Enrichment Guide", "excerpt": "Keep your dog mentally stimulated and prevent destructive behaviors. Discover the best natural dog chews for boredom, featuring low-fat cow ears and long-lasting treats.", "page_title": "Best Dog Chews for Bored Dogs | Brutus & Barnaby", "meta_description": "Keep your dog busy and happy with the best natural dog chews for boredom. Discover why digestible, rawhide-free cow ears and beef cheek rolls are perfect for mental enrichment.", "url_handle": "best-dog-chews-for-bored-dogs", "seo_keywords": "dog chews for boredom, best dog chews for bored dogs, cow ears for dogs, natural dog chews, dog enrichment chews, rawhide free dog chews, long lasting dog chews, bully sticks for dogs, beef cheek rolls, healthy dog treats, prevent dog destructive chewing", "html_file": "blogs/2026-06-30-best-dog-chews-for-bored-dogs-2.html"})'>Copy SEO</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">puppy chews · 2026-06-30</div>
-        <h2>Are Bully Sticks Safe for Puppies? A Complete Guide for Pet Parents</h2>
-        <p class="excerpt">Curious if bully sticks are safe for your growing puppy? Learn when to introduce them, the health benefits, and crucial safety tips to keep your pup happy and safe.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Are Bully Sticks Safe for Puppies? Safety &amp; Benefits Guide</span></div>
-          <div><strong>Meta Description</strong><span>Are bully sticks safe for puppies? Discover when puppies can start chewing bully sticks, safety tips, and the best natural puppy chews for teething.</span></div>
-          <div><strong>URL Handle</strong><span>are-bully-sticks-safe-for-puppies</span></div>
-          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>bully sticks for puppies, are bully sticks safe for puppies, puppy chews, safe puppy treats, teething toys for puppies, natural dog treats, digestible puppy chews, healthy puppy snacks, best chews for puppies, Brutus and Barnaby bully sticks</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-are-bully-sticks-safe-for-puppies-3.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Are Bully Sticks Safe for Puppies? A Complete Guide for Pet Parents", "excerpt": "Curious if bully sticks are safe for your growing puppy? Learn when to introduce them, the health benefits, and crucial safety tips to keep your pup happy and safe.", "page_title": "Are Bully Sticks Safe for Puppies? Safety & Benefits Guide", "meta_description": "Are bully sticks safe for puppies? Discover when puppies can start chewing bully sticks, safety tips, and the best natural puppy chews for teething.", "url_handle": "are-bully-sticks-safe-for-puppies", "seo_keywords": "bully sticks for puppies, are bully sticks safe for puppies, puppy chews, safe puppy treats, teething toys for puppies, natural dog treats, digestible puppy chews, healthy puppy snacks, best chews for puppies, Brutus and Barnaby bully sticks", "html_file": "blogs/2026-06-30-are-bully-sticks-safe-for-puppies-3.html"})'>Copy SEO</button>
-        </div>
-      </article>
-    
-
-      <article class="blog-card">
-        <div class="card-topline">dog behavior · 2026-06-30</div>
-        <h2>Why Is My Dog Always Hungry?</h2>
-        <p class="excerpt">A helpful dog guide about why is my dog always hungry?.</p>
-        <div class="meta-grid">
-          <div><strong>Page Title</strong><span>Why Is My Dog Always Hungry?</span></div>
-          <div><strong>Meta Description</strong><span>Learn about why is my dog always hungry? and how to build a smarter dog treat routine.</span></div>
-          <div><strong>URL Handle</strong><span>why-is-my-dog-always-hungry</span></div>
-          <div><strong>Product Focus</strong><span>Training Treats</span></div>
-          <div class="full"><strong>SEO Keywords</strong><span>dog always hungry, dog treats, natural dog chews</span></div>
-        </div>
-        <div class="actions">
-          <a class="button" href="blogs/2026-06-30-why-is-my-dog-always-hungry-4.html" target="_blank" rel="noopener">Open Draft</a>
-          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Why Is My Dog Always Hungry?", "excerpt": "A helpful dog guide about why is my dog always hungry?.", "page_title": "Why Is My Dog Always Hungry?", "meta_description": "Learn about why is my dog always hungry? and how to build a smarter dog treat routine.", "url_handle": "why-is-my-dog-always-hungry", "seo_keywords": "dog always hungry, dog treats, natural dog chews", "html_file": "blogs/2026-06-30-why-is-my-dog-always-hungry-4.html"})'>Copy SEO</button>
+          <a class="button" href="blogs/2026-06-30-best-puppy-training-treats.html" target="_blank" rel="noopener">Open Draft</a>
+          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Best Puppy Training Treats: A Guide to Rewarding Good Behavior", "excerpt": "Looking for the best puppy training treats to speed up obedience training? Discover how to choose healthy, high-value rewards that keep your puppy focused and motivated.", "page_title": "Best Puppy Training Treats: Healthy Rewards Guide", "meta_description": "Discover the best puppy training treats for quick learning and focus. Learn how to choose low-calorie, high-value rewards for your new pup.", "url_handle": "best-puppy-training-treats", "seo_keywords": "puppy training treats, best puppy training treats, healthy puppy treats, high-value training treats, natural puppy treats, potty training treats, puppy training tips, soft puppy treats, Brutus and Barnaby training treats", "html_file": "blogs/2026-06-30-best-puppy-training-treats.html"})'>Copy SEO</button>
         </div>
       </article>
     </div>
@@ -313,23 +170,30 @@
       const dryRun = document.getElementById('aiMode').value;
       const pin = document.getElementById('agentPin').value || '';
 
+      function showStatus(message) {
+        triggerStatus.style.display = 'block';
+        triggerStatus.innerHTML = message;
+      }
+
       if (!WORKER_CONNECTED || !WORKER_URL) {
-        triggerStatus.innerHTML = 'Direct website trigger is not connected yet. Opening GitHub Actions. Choose <strong>blogs_per_day=' + blogsPerDay + '</strong> and <strong>dry_run=' + dryRun + '</strong> there.';
+        showStatus('Direct website trigger is not connected yet. Opening GitHub Actions. Choose <strong>blogs_per_day=' + blogsPerDay + '</strong>, <strong>dry_run=' + dryRun + '</strong>, and <strong>clear_previous=true</strong> there.');
         window.open(ACTIONS_URL, '_blank', 'noopener');
         return;
       }
 
-      triggerStatus.textContent = 'Starting workflow...';
+      triggerStatus.style.display = 'block';
+      triggerStatus.textContent = 'Starting workflow and clearing old drafts first...';
       try {
         const res = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-agent-pin': pin },
-          body: JSON.stringify({ blogs_per_day: blogsPerDay, dry_run: dryRun })
+          body: JSON.stringify({ blogs_per_day: blogsPerDay, dry_run: dryRun, clear_previous: 'true' })
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || 'Trigger failed');
-        triggerStatus.innerHTML = 'Workflow started. Wait 5–10 minutes, then refresh this page. <a href="' + ACTIONS_URL + '" target="_blank" rel="noopener">Open GitHub Actions</a>';
+        triggerStatus.innerHTML = 'Workflow started. Old drafts will be cleared before the new batch is saved. Wait 5–10 minutes, then refresh this page. <a href="' + ACTIONS_URL + '" target="_blank" rel="noopener">Open GitHub Actions</a>'; 
       } catch (error) {
+        triggerStatus.style.display = 'block';
         triggerStatus.textContent = 'Could not trigger workflow: ' + error.message;
       }
     });
