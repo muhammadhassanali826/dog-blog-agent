@@ -3,6 +3,7 @@
 
 Includes:
 - Generator form on the website
+- AI-only generation mode
 - Optional Cloudflare Worker trigger
 - SEO cards
 - Open draft + copy SEO buttons only
@@ -210,7 +211,7 @@ def render_index(items: List[Dict[str, Any]]) -> str:
   <main>
     <section class="generator-panel" id="generate">
       <h2>Generate New Blogs</h2>
-      <p>Choose how many new drafts to generate. Each new run clears the old dashboard drafts first, so the page only shows the latest batch.</p>
+      <p>Choose how many new AI drafts to generate. Each new run clears the old dashboard drafts first, so the page only shows the latest batch.</p>
       <form id="generateForm" class="generator-grid">
         <div>
           <label for="blogCount">How many blogs?</label>
@@ -219,8 +220,7 @@ def render_index(items: List[Dict[str, Any]]) -> str:
         <div>
           <label for="aiMode">Generation mode</label>
           <select id="aiMode" name="dry_run">
-            <option value="false">Use AI / Gemini</option>
-            <option value="true">Test only / no AI</option>
+            <option value="false">USE AI</option>
           </select>
         </div>
         <div>
@@ -231,7 +231,6 @@ def render_index(items: List[Dict[str, Any]]) -> str:
           <button class="button" type="submit">Generate Blog Drafts</button>
         </div>
       </form>
-      <div class="hint" id="triggerStatus"></div>
     </section>
 
     {content}
@@ -256,28 +255,25 @@ def render_index(items: List[Dict[str, Any]]) -> str:
     const ACTIONS_URL = {json.dumps(GITHUB_ACTIONS_URL)};
 
     const form = document.getElementById('generateForm');
-    const triggerStatus = document.getElementById('triggerStatus');
 
     form.addEventListener('submit', async function(event) {{
       event.preventDefault();
       const blogsPerDay = document.getElementById('blogCount').value || '20';
-      const dryRun = document.getElementById('aiMode').value;
+      const dryRun = 'false';
       const pin = document.getElementById('agentPin').value || '';
-
-      function showStatus(message) {{
-        triggerStatus.style.display = 'block';
-        triggerStatus.innerHTML = message;
-      }}
+      const submitButton = form.querySelector('button[type="submit"]');
+      const originalText = submitButton ? submitButton.textContent : '';
 
       if (!WORKER_CONNECTED || !WORKER_URL) {{
-        showStatus('Direct website trigger is not connected yet. Opening GitHub Actions. Choose <strong>blogs_per_day=' + blogsPerDay + '</strong>, <strong>dry_run=' + dryRun + '</strong>, and <strong>clear_previous=true</strong> there.');
         window.open(ACTIONS_URL, '_blank', 'noopener');
         return;
       }}
 
-      triggerStatus.style.display = 'block';
-      triggerStatus.textContent = 'Starting workflow and clearing old drafts first...';
       try {{
+        if (submitButton) {{
+          submitButton.disabled = true;
+          submitButton.textContent = 'Starting...';
+        }}
         const res = await fetch(WORKER_URL, {{
           method: 'POST',
           headers: {{ 'Content-Type': 'application/json', 'x-agent-pin': pin }},
@@ -285,10 +281,19 @@ def render_index(items: List[Dict[str, Any]]) -> str:
         }});
         const data = await res.json().catch(() => ({{}}));
         if (!res.ok) throw new Error(data.error || 'Trigger failed');
-        triggerStatus.innerHTML = 'Workflow started. Old drafts will be cleared before the new batch is saved. Wait 5–10 minutes, then refresh this page. <a href="' + ACTIONS_URL + '" target="_blank" rel="noopener">Open GitHub Actions</a>'; 
+        if (submitButton) submitButton.textContent = 'Started';
+        setTimeout(() => {{
+          if (submitButton) {{
+            submitButton.disabled = false;
+            submitButton.textContent = originalText || 'Generate Blog Drafts';
+          }}
+        }}, 2500);
       }} catch (error) {{
-        triggerStatus.style.display = 'block';
-        triggerStatus.textContent = 'Could not trigger workflow: ' + error.message;
+        if (submitButton) {{
+          submitButton.disabled = false;
+          submitButton.textContent = originalText || 'Generate Blog Drafts';
+        }}
+        alert('Could not trigger workflow: ' + error.message);
       }}
     }});
 
