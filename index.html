@@ -329,7 +329,7 @@
         <h1>AI Blog Draft Studio</h1>
         <p>Generate colorful, SEO-ready dog blog drafts, review each article, and copy the final HTML from inside the draft page.</p>
 
-        <div class="stat-pill">Total Blogs Generated: <strong>0</strong></div>
+        <div class="stat-pill">Total Blogs Generated: <strong>1</strong></div>
 
         <div class="hero-buttons">
           <a class="btn primary" href="#generate">Generate Blogs</a>
@@ -357,10 +357,31 @@
       </section>
 
       
-        <section class="empty-state" id="drafts">
-          <div class="orb small"></div>
-          <h2>No blogs generated yet</h2>
-          <p>Choose how many AI drafts you want and click <strong>Generate Blog Drafts</strong>.</p>
+        <section class="date-section" id="drafts">
+          <div class="date-head">
+            <h2>2026-06-30</h2>
+            <span>1 draft(s)</span>
+          </div>
+          <div class="draft-grid">
+            <article class="draft-card tilt-card" style="--delay:0ms;">
+              <div class="shine"></div>
+              <div class="card-topline">enrichment • 2026-06-30</div>
+              <h3>How to Keep Dogs Busy Indoors: Ultimate Guide to Indoor Enrichment</h3>
+              <p class="excerpt">Stuck inside with an energetic pup? Discover the best indoor dog enrichment games, training tips, and long-lasting all-natural chews to keep them happy and calm.</p>
+
+              <div class="field-grid">
+                <div class="field"><span>Page Title</span><p>How to Keep Dogs Busy Indoors: Safe Indoor Dog Enrichment Guide</p></div>
+                <div class="field"><span>Meta Description</span><p>Stuck inside? Learn how to keep dogs busy indoors with fun brain games, scent work, and safe, long-lasting chews like Brutus &amp; Barnaby Beef Cheek Rolls.</p></div>
+                <div class="field"><span>URL Handle</span><p>how-to-keep-dogs-busy-indoors</p></div>
+                <div class="field"><span>SEO Keywords</span><p>keep dogs busy indoors, indoor dog enrichment, how to entertain a bored dog, long lasting dog chews, beef cheek rolls for dogs, boredom busters for dogs, mental stimulation for dogs, natural dog chews</p></div>
+              </div>
+
+              <div class="card-actions">
+                <a class="btn primary" href="blogs/2026-06-30-how-to-keep-dogs-busy-indoors.html">Open Draft</a>
+                <button class="btn secondary" type="button" onclick="copySeo(this)" data-seo="{&quot;Blog Title&quot;: &quot;How to Keep Dogs Busy Indoors: Ultimate Guide to Indoor Enrichment&quot;, &quot;Excerpt&quot;: &quot;Stuck inside with an energetic pup? Discover the best indoor dog enrichment games, training tips, and long-lasting all-natural chews to keep them happy and calm.&quot;, &quot;Page Title&quot;: &quot;How to Keep Dogs Busy Indoors: Safe Indoor Dog Enrichment Guide&quot;, &quot;Meta Description&quot;: &quot;Stuck inside? Learn how to keep dogs busy indoors with fun brain games, scent work, and safe, long-lasting chews like Brutus &amp; Barnaby Beef Cheek Rolls.&quot;, &quot;URL Handle&quot;: &quot;how-to-keep-dogs-busy-indoors&quot;, &quot;SEO Keywords&quot;: &quot;keep dogs busy indoors, indoor dog enrichment, how to entertain a bored dog, long lasting dog chews, beef cheek rolls for dogs, boredom busters for dogs, mental stimulation for dogs, natural dog chews&quot;, &quot;Product Focus&quot;: &quot;Beef Cheek Rolls&quot;}">Copy SEO</button>
+              </div>
+            </article>
+            </div>
         </section>
         
     </main>
@@ -371,7 +392,7 @@
   <script>
     const TRIGGER_WORKER_URL = "https://dog-blog-trigger.mhassanali826.workers.dev/";
     const ACTIONS_URL = "https://github.com/muhammadhassanali826/dog-blog-agent/actions/workflows/daily-blog-generator.yml";
-    const BLOGS = [];
+    const BLOGS = [{"date": "2026-06-30", "status": "generated", "topic": "How to Keep Dogs Busy Indoors", "main_keyword": "keep dogs busy indoors", "product_focus": "Beef Cheek Rolls", "category": "enrichment", "blog_title": "How to Keep Dogs Busy Indoors: Ultimate Guide to Indoor Enrichment", "excerpt": "Stuck inside with an energetic pup? Discover the best indoor dog enrichment games, training tips, and long-lasting all-natural chews to keep them happy and calm.", "page_title": "How to Keep Dogs Busy Indoors: Safe Indoor Dog Enrichment Guide", "meta_description": "Stuck inside? Learn how to keep dogs busy indoors with fun brain games, scent work, and safe, long-lasting chews like Brutus & Barnaby Beef Cheek Rolls.", "url_handle": "how-to-keep-dogs-busy-indoors", "seo_keywords": ["keep dogs busy indoors", "indoor dog enrichment", "how to entertain a bored dog", "long lasting dog chews", "beef cheek rolls for dogs", "boredom busters for dogs", "mental stimulation for dogs", "natural dog chews"], "html_file": "blogs/2026-06-30-how-to-keep-dogs-busy-indoors.html"}];
 
     function toast(message) {
       const el = document.getElementById('toast');
