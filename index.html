@@ -80,7 +80,7 @@
     <h1>Generated Blog Drafts</h1>
     <p>Generate draft blogs from this dashboard, review SEO details, open each draft, and copy the full blog HTML. GitHub-only. No Shopify auto-publishing.</p>
     <div class="stats">
-      <div class="stat">Total Drafts: 7</div>
+      <div class="stat">Total Drafts: 8</div>
       <div class="stat">GitHub Only</div>
       <div class="stat">No Shopify Publishing</div>
       <div class="stat">Website Trigger: Connected</div>
@@ -119,8 +119,28 @@
 
     
             <section class="date-section" id="drafts">
-              <h2 class="date-heading">2026-06-30 <span>7 draft(s)</span></h2>
+              <h2 class="date-heading">2026-06-30 <span>8 draft(s)</span></h2>
               <div class="cards">
+      <article class="blog-card">
+        <div class="card-topline">dog chews · 2026-06-30</div>
+        <h2>Best Rawhide Alternatives for Dogs: Safe, Healthy, &amp; Digestible Chews</h2>
+        <p class="excerpt">Looking for safe, digestible rawhide alternatives for dogs? Discover why natural, single-ingredient chews like Bully Sticks are the perfect choice for your pup.</p>
+        <div class="meta-grid">
+          <div><strong>Page Title</strong><span>7 Best Rawhide Alternatives for Dogs: Healthy &amp; Safe Chews</span></div>
+          <div><strong>Meta Description</strong><span>Discover the best rawhide alternatives for dogs. Keep your pet safe and busy with fully digestible, natural chews like Bully Sticks, Cow Ears, and Pig Ears.</span></div>
+          <div><strong>URL Handle</strong><span>best-rawhide-alternatives-for-dogs</span></div>
+          <div><strong>Product Focus</strong><span>Bully Sticks</span></div>
+          <div class="full"><strong>SEO Keywords</strong><span>rawhide alternatives for dogs, safe dog chews, natural rawhide alternatives, bully sticks for dogs, healthy dog treats, digestible dog chews, long lasting dog chews, cow ears for dogs, pig ears for dogs, dog chew treats, non toxic dog chews</span></div>
+        </div>
+        <div class="actions">
+          <a class="button" href="blogs/2026-06-30-best-rawhide-alternatives-for-dogs-2.html" target="_blank" rel="noopener">Open Draft</a>
+          <button class="button secondary" type="button" onclick="copyHtmlFromFile("blogs/2026-06-30-best-rawhide-alternatives-for-dogs-2.html", "Best Rawhide Alternatives for Dogs: Safe, Healthy, & Digestible Chews")">Copy HTML</button>
+          <button class="button ghost" type="button" onclick="openHtmlModal("blogs/2026-06-30-best-rawhide-alternatives-for-dogs-2.html", "Best Rawhide Alternatives for Dogs: Safe, Healthy, & Digestible Chews")">View HTML</button>
+          <button class="button ghost" type="button" onclick='copySeoDetails({"blog_title": "Best Rawhide Alternatives for Dogs: Safe, Healthy, & Digestible Chews", "excerpt": "Looking for safe, digestible rawhide alternatives for dogs? Discover why natural, single-ingredient chews like Bully Sticks are the perfect choice for your pup.", "page_title": "7 Best Rawhide Alternatives for Dogs: Healthy & Safe Chews", "meta_description": "Discover the best rawhide alternatives for dogs. Keep your pet safe and busy with fully digestible, natural chews like Bully Sticks, Cow Ears, and Pig Ears.", "url_handle": "best-rawhide-alternatives-for-dogs", "seo_keywords": "rawhide alternatives for dogs, safe dog chews, natural rawhide alternatives, bully sticks for dogs, healthy dog treats, digestible dog chews, long lasting dog chews, cow ears for dogs, pig ears for dogs, dog chew treats, non toxic dog chews", "html_file": "blogs/2026-06-30-best-rawhide-alternatives-for-dogs-2.html"})'>Copy SEO</button>
+        </div>
+      </article>
+    
+
       <article class="blog-card">
         <div class="card-topline">dog chews · 2026-06-30</div>
         <h2>Are Pig Ears Safe for Dogs?</h2>
@@ -312,6 +332,46 @@
       }
     });
 
+    async function getBlogHtml(path) {
+      const response = await fetch(path + '?v=' + Date.now(), { cache: 'no-store' });
+      if (!response.ok) throw new Error('Could not open ' + path);
+      const text = await response.text();
+      const doc = new DOMParser().parseFromString(text, 'text/html');
+      const raw = doc.querySelector('#rawHtmlCode');
+      return raw ? raw.value : text;
+    }
+
+    async function copyText(text, successMessage) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const temp = document.createElement('textarea');
+          temp.value = text;
+          temp.style.position = 'fixed';
+          temp.style.left = '-9999px';
+          temp.style.top = '-9999px';
+          document.body.appendChild(temp);
+          temp.focus();
+          temp.select();
+          document.execCommand('copy');
+          temp.remove();
+        }
+        alert(successMessage);
+      } catch (error) {
+        alert('Copy failed. Click View HTML, select the code, and copy manually. Error: ' + error.message);
+      }
+    }
+
+    async function copyHtmlFromFile(path, title) {
+      try {
+        const html = await getBlogHtml(path);
+        await copyText(html, 'HTML copied for: ' + title);
+      } catch (error) {
+        alert('Could not copy HTML automatically. Click Open Draft or View HTML and copy from there. Error: ' + error.message);
+      }
+    }
+
     async function openHtmlModal(path, title) {
       const modal = document.getElementById('htmlModal');
       const code = document.getElementById('htmlCode');
@@ -322,11 +382,7 @@
       modal.setAttribute('aria-hidden', 'false');
 
       try {
-        const response = await fetch(path + '?v=' + Date.now());
-        const text = await response.text();
-        const doc = new DOMParser().parseFromString(text, 'text/html');
-        const raw = doc.querySelector('#rawHtmlCode');
-        code.value = raw ? raw.value : text;
+        code.value = await getBlogHtml(path);
       } catch (error) {
         code.value = 'Could not load HTML: ' + error.message;
       }
@@ -340,8 +396,7 @@
 
     async function copyHtmlCode() {
       const code = document.getElementById('htmlCode');
-      await navigator.clipboard.writeText(code.value);
-      alert('Blog HTML copied.');
+      await copyText(code.value, 'Blog HTML copied.');
     }
 
     async function copySeoDetails(item) {
@@ -365,8 +420,7 @@ ${item.seo_keywords}
 
 HTML File:
 ${item.html_file}`;
-      await navigator.clipboard.writeText(text);
-      alert('SEO details copied.');
+      await copyText(text, 'SEO details copied.');
     }
   </script>
 </body>
