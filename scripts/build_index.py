@@ -490,7 +490,7 @@ def build_html(blogs: List[Dict[str, Any]]) -> str:
         <form class="form-row" onsubmit="startGeneration(event)">
           <div>
             <label for="blogsCount">How many blogs?</label>
-            <input id="blogsCount" type="number" min="1" max="20" value="20" required>
+            <input id="blogsCount" type="number" min="1" max="20" value="1" required>
           </div>
           <div>
             <label for="agentPin">PIN, optional</label>
@@ -521,7 +521,7 @@ def build_html(blogs: List[Dict[str, Any]]) -> str:
     async function startGeneration(event) {
       event.preventDefault();
       const btn = document.getElementById('generateBtn');
-      const count = Math.min(Math.max(parseInt(document.getElementById('blogsCount').value || '20', 10), 1), 20);
+      const count = Math.min(Math.max(parseInt(document.getElementById('blogsCount').value || '1', 10), 1), 20);
       const pin = document.getElementById('agentPin').value || '';
       btn.disabled = true;
       const oldText = btn.textContent;
