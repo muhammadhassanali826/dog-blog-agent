@@ -5,7 +5,7 @@ Includes:
 - Generator form on the website
 - Optional Cloudflare Worker trigger
 - SEO cards
-- HTML viewer/copy modal for each blog
+- Open draft + copy SEO buttons only
 """
 
 from __future__ import annotations
@@ -130,6 +130,7 @@ def render_index(items: List[Dict[str, Any]]) -> str:
       --border: #f3d2c2;
       --text: #1a1208;
       --muted: #6b5d52;
+      --success: #0f7b30;
     }}
     * {{ box-sizing: border-box; }}
     body {{
@@ -163,7 +164,7 @@ def render_index(items: List[Dict[str, Any]]) -> str:
     .generator-grid {{ display:grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap:14px; align-items:end; }}
     label {{ font-size:12px; font-weight:900; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:7px; }}
     input, select {{ width:100%; border:1px solid #ffd7c4; background:#fff8f3; border-radius:12px; padding:13px 12px; font:inherit; }}
-    .hint {{ margin-top:12px; padding:12px 14px; border-radius:12px; background:#fff4ee; border:1px solid #ffd7c4; color:#5c3628; font-size:14px; line-height:1.55; }}
+    .hint {{ display:none; margin-top:12px; padding:12px 14px; border-radius:12px; background:#fff4ee; border:1px solid #ffd7c4; color:#5c3628; font-size:14px; line-height:1.55; }}
     .date-heading {{ margin: 30px 0 16px; font-size: 22px; display: flex; align-items: center; gap: 10px; }}
     .date-heading span {{ color: var(--orange); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }}
     .cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }}
@@ -209,7 +210,7 @@ def render_index(items: List[Dict[str, Any]]) -> str:
   <main>
     <section class="generator-panel" id="generate">
       <h2>Generate New Blogs</h2>
-      <p>Choose how many drafts to generate and whether to use AI. “Test only” creates sample blogs without Gemini credits. “Use AI” uses your Gemini key stored in GitHub Secrets.</p>
+      <p>Choose how many new drafts to generate. Each new run clears the old dashboard drafts first, so the page only shows the latest batch.</p>
       <form id="generateForm" class="generator-grid">
         <div>
           <label for="blogCount">How many blogs?</label>
@@ -230,7 +231,7 @@ def render_index(items: List[Dict[str, Any]]) -> str:
           <button class="button" type="submit">Generate Blog Drafts</button>
         </div>
       </form>
-      <div class="hint" id="triggerStatus">If the button is not connected yet, it will open GitHub Actions where you can click Run workflow manually.</div>
+      <div class="hint" id="triggerStatus"></div>
     </section>
 
     {content}
@@ -263,23 +264,30 @@ def render_index(items: List[Dict[str, Any]]) -> str:
       const dryRun = document.getElementById('aiMode').value;
       const pin = document.getElementById('agentPin').value || '';
 
+      function showStatus(message) {
+        triggerStatus.style.display = 'block';
+        triggerStatus.innerHTML = message;
+      }
+
       if (!WORKER_CONNECTED || !WORKER_URL) {{
-        triggerStatus.innerHTML = 'Direct website trigger is not connected yet. Opening GitHub Actions. Choose <strong>blogs_per_day=' + blogsPerDay + '</strong> and <strong>dry_run=' + dryRun + '</strong> there.';
+        showStatus('Direct website trigger is not connected yet. Opening GitHub Actions. Choose <strong>blogs_per_day=' + blogsPerDay + '</strong>, <strong>dry_run=' + dryRun + '</strong>, and <strong>clear_previous=true</strong> there.');
         window.open(ACTIONS_URL, '_blank', 'noopener');
         return;
       }}
 
-      triggerStatus.textContent = 'Starting workflow...';
+      triggerStatus.style.display = 'block';
+      triggerStatus.textContent = 'Starting workflow and clearing old drafts first...';
       try {{
         const res = await fetch(WORKER_URL, {{
           method: 'POST',
           headers: {{ 'Content-Type': 'application/json', 'x-agent-pin': pin }},
-          body: JSON.stringify({{ blogs_per_day: blogsPerDay, dry_run: dryRun }})
+          body: JSON.stringify({{ blogs_per_day: blogsPerDay, dry_run: dryRun, clear_previous: 'true' }})
         }});
         const data = await res.json().catch(() => ({{}}));
         if (!res.ok) throw new Error(data.error || 'Trigger failed');
-        triggerStatus.innerHTML = 'Workflow started. Wait 5–10 minutes, then refresh this page. <a href="' + ACTIONS_URL + '" target="_blank" rel="noopener">Open GitHub Actions</a>';
+        triggerStatus.innerHTML = 'Workflow started. Old drafts will be cleared before the new batch is saved. Wait 5–10 minutes, then refresh this page. <a href="' + ACTIONS_URL + '" target="_blank" rel="noopener">Open GitHub Actions</a>'; 
       }} catch (error) {{
+        triggerStatus.style.display = 'block';
         triggerStatus.textContent = 'Could not trigger workflow: ' + error.message;
       }}
     }});
