@@ -13,22 +13,36 @@ on:
       dry_run:
         description: "Generate fake test blogs without Gemini API? true/false"
         required: false
-        default: "true"
+        default: "false"
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "dog-blog-pages"
+  cancel-in-progress: false
 
 jobs:
   generate-blogs:
     runs-on: ubuntu-latest
 
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_MODEL: gemini-3.5-flash
       BLOGS_PER_DAY: ${{ github.event.inputs.blogs_per_day || '20' }}
-      DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
       SLEEP_SECONDS_BETWEEN_CALLS: "6"
       MAX_RETRIES: "3"
+      # Optional: after you deploy the Cloudflare Worker, add repo variable TRIGGER_WORKER_URL.
+      # Repo path: Settings → Secrets and variables → Actions → Variables → New repository variable
+      TRIGGER_WORKER_URL: ${{ vars.TRIGGER_WORKER_URL }}
+      GITHUB_ACTIONS_URL: https://github.com/${{ github.repository }}/actions/workflows/daily-blog-generator.yml
 
     steps:
       - name: Checkout repository
@@ -40,20 +54,29 @@ jobs:
           mkdir -p data
           mkdir -p blogs
 
-          cp generate_blogs.py scripts/generate_blogs.py
-          cp build_index.py scripts/build_index.py
-          cp topics.csv data/topics.csv
-          cp products.json data/products.json
-          cp generated_blogs.json data/generated_blogs.json
+          if [ ! -f scripts/generate_blogs.py ] && [ -f generate_blogs.py ]; then
+            cp generate_blogs.py scripts/generate_blogs.py
+          fi
 
-          echo "Root files:"
-          ls -la
+          if [ ! -f scripts/build_index.py ] && [ -f build_index.py ]; then
+            cp build_index.py scripts/build_index.py
+          fi
 
-          echo "Scripts folder:"
-          ls -la scripts
+          if [ ! -f data/topics.csv ] && [ -f topics.csv ]; then
+            cp topics.csv data/topics.csv
+          fi
 
-          echo "Data folder:"
-          ls -la data
+          if [ ! -f data/products.json ] && [ -f products.json ]; then
+            cp products.json data/products.json
+          fi
+
+          if [ ! -f data/generated_blogs.json ] && [ -f generated_blogs.json ]; then
+            cp generated_blogs.json data/generated_blogs.json
+          fi
+
+          if [ ! -f data/generated_blogs.json ]; then
+            echo "[]" > data/generated_blogs.json
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -77,3 +100,24 @@ jobs:
             git commit -m "Generate daily dog blog drafts"
             git push
           fi
+
+      - name: Prepare Pages site
+        run: |
+          rm -rf _site
+          mkdir -p _site
+          cp index.html _site/index.html
+          cp -r blogs _site/blogs
+          cp -r data _site/data
+          touch _site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
